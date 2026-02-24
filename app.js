@@ -73,3 +73,7 @@ function logout() {
     localStorage.removeItem("token");
     window.location.href = "login.html";
 }
+
+function goToRegister() {
+    window.location.href = "register.html";
+}
