@@ -74,3 +74,17 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
+
+.task {
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.create-task {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
