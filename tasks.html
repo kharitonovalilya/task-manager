@@ -1,16 +1,27 @@
-<link rel="stylesheet" href="style.css">
-<script>
-if (!localStorage.getItem("token")) {
-    window.location.href = "login.html";
-}
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tasks</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<h2>Tasks</h2>
+<div class="card">
+  <h2>My Tasks</h2>
 
-<button onclick="loadTasks()">Load tasks</button>
+  <div class="create-task">
+    <input id="title" placeholder="Task title">
+    <input id="description" placeholder="Description">
+    <button onclick="createTask()">Create</button>
+  </div>
 
-<ul id="taskList"></ul>
+  <div id="tasksList"></div>
 
-<script src="app.js"></script>
+  <button onclick="logout()" class="secondary-btn">
+    Logout
+  </button>
+</div>
 
-<button onclick="logout()">Logout</button>
+<script src="tasks.js"></script>
+</body>
+</html>
