@@ -75,6 +75,37 @@ body {
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
+/* Делаем ссылку-кнопку для регистрации */
+#goToRegisterBtn {
+  display: block;          /* перенос на новую строку */
+  margin-top: 20px;        /* отступ сверху */
+  text-align: center;      /* по центру */
+  cursor: pointer;         /* как у кнопки */
+  color: #ffb347;          /* цвет текста, можно градиент */
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+#goToRegisterBtn:hover {
+  color: #ff7a18;          /* меняется цвет при наведении */
+  transform: scale(1.05);  /* лёгкое увеличение */
+}
+
+#goToLoginBtn {
+  display: block;          /* перенос на новую строку */
+  margin-top: 20px;        /* отступ сверху */
+  text-align: center;      /* по центру */
+  cursor: pointer;         /* как у кнопки */
+  color: #ffb347;          /* цвет текста, можно градиент */
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+#goToLoginBtn:hover {
+  color: #ff7a18;          /* меняется цвет при наведении */
+  transform: scale(1.05);  /* лёгкое увеличение */
+}
+
 .task {
   background: rgba(255,255,255,0.1);
   padding: 15px;
