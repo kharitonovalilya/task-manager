@@ -1,4 +1,4 @@
-const API = "http://localhost:8000";
+const API = "http://localhost:8000/api/v1";
 
 // LOGIN
 async function login() {
@@ -6,7 +6,7 @@ async function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const response = await fetch(API + "/login", {
+    const response = await fetch(API + "/auth/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -50,14 +50,13 @@ function register() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const passwordConfirm = document.getElementById("passwordConfirm").value;
-
   // Проверяем, что пароли совпадают
   if (password !== passwordConfirm) {
     alert("Пароли не совпадают!");
     return;
   }
   // Отправка на backend
-  fetch("http://localhost:8000/register", {
+  fetch(API + "/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }) 
