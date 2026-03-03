@@ -13,7 +13,7 @@ def list_teams(current_user: dict = Depends(get_current_user)):
 
 @router.post("/", response_model=Team, status_code=201)
 def create_team(team: TeamCreate, current_user: dict = Depends(get_current_user)):
-    new_team = team_crud.create_team(team)
+    new_team = team_crud.create_team(team, current_user["id"])
     if not new_team:
         raise HTTPException(status_code=500, detail="Database error")
     return Team(**new_team)

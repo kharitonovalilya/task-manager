@@ -16,7 +16,7 @@ def register(user_data: UserCreate):
     new_user = create_user(user_data)
     if not new_user:
         raise HTTPException(status_code=500, detail="Database error")
-    return User(id=new_user["id"], email=new_user["login"])
+    return User(id=new_user["id"], email=new_user["email"])
 
 @router.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -29,10 +29,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user["login"]}, expires_delta=access_token_expires
+        data={"sub": user["email"]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=User)
 def read_users_me(current_user: dict = Depends(get_current_user)):
-    return User(id=current_user["id"], email=current_user["login"])
+    return User(id=current_user["id"], email=current_user["email"])

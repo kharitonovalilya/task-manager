@@ -13,7 +13,7 @@ def list_tasks(current_user: dict = Depends(get_current_user)):
 
 @router.post("/", response_model=Task, status_code=201)
 def create_task(task: TaskCreate, current_user: dict = Depends(get_current_user)):
-    new_task = task_crud.create_task(task)
+    new_task = task_crud.create_task(task, current_user["id"])
     if not new_task:
         raise HTTPException(status_code=500, detail="Database error")
     return Task(**new_task)

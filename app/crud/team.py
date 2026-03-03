@@ -13,16 +13,21 @@ def get_teams():
     conn.close()
     return teams
 
-def create_team(team: TeamCreate):
+def create_team(team: TeamCreate, lead_id: int):
     conn = get_connection()
     if not conn:
         return None
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
-        "INSERT INTO teams (name) VALUES (%s) RETURNING *",
-        (team.name,)
+        "INSERT INTO teams (name, lead_id) VALUES (%(name)s, %(lead_id)s) RETURNING *",
+        {"name": team.name, "lead_id": lead_id}
     )
     new_team = cur.fetchone()
+    team_id = new_team["id"]
+    cur.execute(
+        "INSERT INTO team_members (user_id, team_id, is_lead) VALUES (%s, %s, %s)",
+        (lead_id, team_id, True)
+    )
     conn.commit()
     cur.close()
     conn.close()
@@ -33,11 +38,22 @@ def get_team(team_id: int):
     if not conn:
         return None
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM teams WHERE id = %s", (team_id,))
+    cur.execute("SELECT * FROM teams WHERE id = %s", (team_id))
     team = cur.fetchone()
     cur.close()
     conn.close()
     return team
+
+def get_team_lead_id(lead_id: int):
+    conn = get_connection()
+    if not conn:
+        return None
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM teams WHERE lead_id = %s", (lead_id,))
+    leader = cur.fetchone()
+    cur.close()
+    conn.close()
+    return leader
 
 def delete_team(team_id: int):
     conn = get_connection()
@@ -86,7 +102,7 @@ def get_team_members(team_id: int):
         return []
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT u.id, u.login FROM users u
+        SELECT u.id, u.email, tm.is_lead FROM users u
         JOIN team_members tm ON u.id = tm.user_id
         WHERE tm.team_id = %s
     """, (team_id,))
