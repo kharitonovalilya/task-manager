@@ -3,10 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import init_db
 from app.api.v1 import router as v1_router
 
+# create app
 app = FastAPI(title = "Task Manager API")
 
+# create tables if they are not exist
 init_db()
 
+# allow front
 origins = [
     "http://localhost:5500",
     "http://127.0.0.1:5500",
@@ -19,8 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#include routers
 app.include_router(v1_router, prefix="/api/v1")
 
 @app.get("/")
 def root():
-    return {"status": "ok"}
+    return {"message": "Task Planner API is running", "docs": "/docs"}
