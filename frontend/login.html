@@ -1,15 +1,31 @@
-<link rel="stylesheet" href="style.css">
-<h2>Login</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Логин</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
+<div class="card">
 
-<button onclick="login()">Login</button>
+  <h1 class="title">ВХОД</h1>
 
-<p id="goToRegisterBtn" onclick="goToRegister()">
-  Регистрация
-</p>
+  <input id="email" type="text" placeholder="Логин">
+  <input id="password" type="password" placeholder="Пароль">
+
+  <button class="primary-btn" onclick="login()">
+    Войти
+  </button>
+
+  <p class="link-btn" onclick="goToRegister()">
+    Нет аккаунта? Зарегистрироваться
+  </p>
+
+</div>
 
 <script src="app.js"></script>
+</body>
+</html>
 
 

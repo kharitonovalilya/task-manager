@@ -1,33 +1,27 @@
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
   height: 100vh;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #4661db, #9973c0);
+  font-family: Arial, sans-serif;
 }
-
-.task {
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 8px;
+.title {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 10px;
 }
 
 .card {
-  width: 320px;
+  background: white;
   padding: 40px;
-
-  border-radius: 20px;
-
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  color: white;
+  border-radius: 16px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
 .input {
@@ -43,6 +37,21 @@ body {
   background: rgba(255,255,255,0.15);
   color: white;
   font-size: 14px;
+}
+
+.primary-btn {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #667eea;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.primary-btn:hover {
+  background: #5a67d8;
 }
 
 .input::placeholder {
@@ -81,7 +90,7 @@ body {
   margin-top: 20px;        /* отступ сверху */
   text-align: center;      /* по центру */
   cursor: pointer;         /* как у кнопки */
-  color: #ffb347;          /* цвет текста, можно градиент */
+  color: #1198e6;          /* цвет текста, можно градиент */
   font-weight: 600;
   transition: 0.3s;
 }
@@ -118,4 +127,131 @@ body {
   flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
+}
+
+.link-btn {
+  text-align: center;
+  cursor: pointer;
+  color: #667eea;
+  font-size: 14px;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* Основной flex-контейнер для dashboard */
+/* Основной контейнер */
+/* Основной контейнер */
+/* Основной контейнер */
+.dashboard {
+  display: flex;
+  margin: 0;
+  height: 100vh; /* полностью высота окна */
+  width: 100vw;  /* полностью ширина окна */
+  gap: 0;        /* убираем пустое пространство между панелями */
+  font-family: Arial, sans-serif;
+  color: black;
+}
+
+/* Панель команд */
+.teams-panel {
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+  border-radius: 0; /* без скруглений, чтобы заняло весь экран по вертикали */
+  padding: 20px;
+  width: 25%;  /* ровно 1/4 ширины */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  color: black;
+  box-sizing: border-box;
+}
+
+/* Панель календаря */
+.calendar-panel {
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+  border-radius: 0;
+  padding: 20px;
+  width: 75%; /* остальная ширина */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: black;
+  box-sizing: border-box;
+}
+
+/* Заголовки */
+.teams-panel h2, .calendar-panel h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+/* Команды */
+.team-card {
+  background: rgba(255,255,255,0.35);
+  padding: 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 20px;
+  color: black;
+  transition: 0.2s;
+}
+
+.team-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+/* Календарь */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* 7 дней недели */
+  grid-auto-rows: 1fr;                  /* ряды одинаковой высоты */
+  gap: 5px;
+  flex-grow: 1;
+  height: calc(100% - 50px);           /* оставляем место под заголовок */
+}
+
+/* День месяца */
+.calendar-day {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  cursor: pointer;
+  transition: 0.2s;
+  padding: 5px;
+  font-size: 16px;
+  color: black;
+}
+
+/* Дни недели сверху */
+.calendar-weekday {
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+  color: black;
+}
+
+/* Точки задач */
+.task-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-top: 5px;
+}
+
+.task-dot[data-done="true"] {
+  background-color: #4caf50;
+}
+
+.task-dot[data-done="false"] {
+  background-color: #e53e3e;
 }

@@ -46,27 +46,37 @@ async function loadTasks() {
     });
 }
 
-async function register() {
+function register() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const passwordConfirm = document.getElementById("passwordConfirm").value;
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    const response = await fetch(API + "/register", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ email, password })
+  // Проверяем, что пароли совпадают
+  if (password !== passwordConfirm) {
+    alert("Пароли не совпадают!");
+    return;
+  }
+  // Отправка на backend
+  fetch("http://localhost:8000/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }) 
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Ошибка регистрации");
+      return res.json();
+    })
+    .then(data => {
+      alert("Регистрация успешна!");
+      window.location.href = "login.html";
+    })
+    .catch(err => {
+      alert(err.message);
     });
-
-    if (response.ok) {
-        alert("Регистрация успешна");
-        window.location.href = "login.html";
-    } else {
-        alert("Ошибка регистрации");
-    }
 }
 
 function goToLogin() {
-    window.location.href = "login.html";
+  window.location.href = "login.html";
 }
 
 function logout() {

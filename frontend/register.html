@@ -1,13 +1,28 @@
-<link rel="stylesheet" href="style.css">
-<h2>Register</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Регистрация</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
+<div class="card">
 
-<button onclick="register()">Register</button>
+  <h1 class="title">РЕГИСТРАЦИЯ</h1>
 
-<p id="goToLoginBtn" onclick="goToLogin()">
+  <input id="email" type="text" placeholder="Логин">
+  <input id="password" type="password" placeholder="Пароль">
+  <input id="passwordConfirm" type="password" placeholder="Повторите пароль">
+
+  <button class="primary-btn" onclick="register()">Зарегистрироваться</button>
+
+  <p class="link-btn" onclick="goToLogin()">
     Уже есть аккаунт?
-</p>
+  </p>
+
+</div>
 
 <script src="app.js"></script>
+</body>
+</html>
