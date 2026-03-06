@@ -1,2 +1,2 @@
 localStorage.setItem("token", data.access_token);
-window.location.href = "team-tasks.html";
+window.location.href = "dashboard.html";
