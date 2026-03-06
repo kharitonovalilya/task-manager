@@ -2,28 +2,33 @@ const API = "http://localhost:8000/api/v1";
 
 // LOGIN
 async function login() {
-
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const response = await fetch(API + "/auth/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: email,
-            password: password
-        })
-    });
+    try {
+        const response = await fetch(API + "/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    console.log(data);
+        if (!response.ok) {
+            alert(data.message || "Ошибка входа");
+            return;
+        }
 
-    localStorage.setItem("token", data.access_token);
+        // Сохраняем токен
+        localStorage.setItem("token", data.access_token);
 
-    window.location.href = "dashboard.html";
+        // Переходим на дэшборд
+        window.location.href = "dashboard.html";
+
+    } catch (err) {
+        console.error(err);
+        alert("Ошибка сети или сервера");
+    }
 }
 
 async function loadTasks() {
