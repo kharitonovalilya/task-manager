@@ -23,7 +23,7 @@ async function login() {
 
     localStorage.setItem("token", data.access_token);
 
-    window.location.href = "tasks.html";
+    window.location.href = "dashboard.html";
 }
 
 async function loadTasks() {
