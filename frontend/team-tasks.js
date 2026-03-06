@@ -1,54 +1,112 @@
-const allTasks = [
-  { id: 1, teamId: 1, title: "Сделать домашку", done: false },
-  { id: 2, teamId: 1, title: "Прочитать книгу", done: true },
-  { id: 3, teamId: 2, title: "Купить продукты", done: false },
-];
+const params = new URLSearchParams(window.location.search);
+const teamId = params.get("team");
 
-const teamId = parseInt(localStorage.getItem("selectedTeamId"));
-const teamNameEl = document.getElementById("teamName");
-teamNameEl.textContent = `Задачи команды ${teamId}`;
+let tasks = [];
 
-// Фильтруем задачи выбранной команды
-let tasks = allTasks.filter(t => t.teamId === teamId);
+async function loadAllTasks(){
 
-function renderTasks() {
-  const container = document.getElementById("tasksList");
+  const response = await fetch(`/api/teams/${teamId}/tasks`);
+  tasks = await response.json();
+
+  renderTasks(tasks);
+}
+
+async function loadMyTasks(){
+
+  const response = await fetch(`/api/teams/${teamId}/mytasks`);
+  const myTasks = await response.json();
+
+  renderTasks(myTasks);
+}
+
+function showMyTasks(){
+  loadMyTasks();
+}
+
+function showAllTasks(){
+  loadAllTasks();
+}
+
+function renderTasks(tasksList){
+
+  const container = document.getElementById("tasksContainer");
   container.innerHTML = "";
 
-  tasks.forEach(task => {
-    const div = document.createElement("div");
-    div.className = "task-card";
-    div.innerHTML = `
-      <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleDone(${task.id}, this)">
-      <span>${task.title}</span>
-      <button class="delete-btn" onclick="deleteTask(${task.id})">Удалить</button>
-    `;
-    container.appendChild(div);
+  tasksList.forEach(renderTask);
+}
+
+function renderTask(task){
+
+  const container = document.getElementById("tasksContainer");
+
+  const div = document.createElement("div");
+  div.className = "task-card";
+
+  if(task.done){
+    div.classList.add("done");
+  }
+
+  div.innerHTML = `
+    <div>
+      <b>${task.title}</b><br>
+      Дедлайн: ${task.deadline}<br>
+      Исполнитель: ${task.user}
+    </div>
+
+    <input type="checkbox"
+      ${task.done ? "checked" : ""}
+      onchange="toggleTask(${task.id}, this)">
+  `;
+
+  container.appendChild(div);
+}
+
+async function toggleTask(id, checkbox){
+
+  const done = checkbox.checked;
+
+  await fetch(`/api/tasks/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({done})
   });
 }
 
-function toggleDone(id, checkbox) {
-  const task = tasks.find(t => t.id === id);
-  if (task) task.done = checkbox.checked;
+async function createTask(){
+
+  const title = document.getElementById("taskTitle").value;
+  const deadline = document.getElementById("taskDeadline").value;
+  const user = document.getElementById("taskUser").value;
+
+  await fetch("/api/tasks",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify({
+      title,
+      deadline,
+      user,
+      teamId
+    })
+  });
+
+  closeModal();
+  loadAllTasks();
 }
 
-function deleteTask(id) {
-  tasks = tasks.filter(t => t.id !== id);
-  renderTasks();
+function openModal(){
+  document.getElementById("taskModal").style.display = "flex";
 }
 
-function createTask() {
-  const title = document.getElementById("title").value;
-  if (!title) return alert("Введите название задачи");
-
-  const newTask = { id: Date.now(), teamId, title, done: false };
-  tasks.push(newTask);
-  renderTasks();
-  document.getElementById("title").value = "";
+function closeModal(){
+  document.getElementById("taskModal").style.display = "none";
 }
 
 function goBack() {
-  window.location.href = "teams.html";
+  window.location.href = "dashboard.html";
 }
 
-renderTasks();
+loadMyTasks();

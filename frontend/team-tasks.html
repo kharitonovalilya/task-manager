@@ -2,23 +2,59 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Задачи команды</title>
+  <title>Team Tasks</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="container">
-  <h1 class="title" id="teamName">Задачи команды</h1>
+  <div class="back-button" onclick="goBack()">
+  ← Назад
+</div>
 
-  <div class="create-task">
-    <input id="title" placeholder="Название задачи">
-    <button class="primary-btn" onclick="createTask()">Создать</button>
+<div class="team-page">
+
+
+  <div class="team-title-card">
+  <h1 id="teamTitle">Команда 1</h1>
+</div>
+
+  <div class="tabs">
+    <button onclick="showMyTasks()">Мои задачи</button>
+    <button onclick="showAllTasks()">Все задачи команды</button>
   </div>
 
-  <div id="tasksList" class="tasks-list"></div>
+  <!-- КНОПКА СОЗДАНИЯ -->
+  <button id="createTaskBtn" class="create-btn" onclick="openModal()">
+    + Создать задачу
+  </button>
 
-  <button class="secondary-btn" onclick="goBack()">Назад к командам</button>
+  <div id="tasksContainer"></div>
+
 </div>
+
+<!-- POPUP -->
+<div id="taskModal" class="modal">
+
+  <div class="modal-content">
+
+    <h2>Новая задача</h2>
+
+    <input id="taskTitle" placeholder="Название задачи">
+
+    <input id="taskDeadline" type="date">
+
+    <input id="taskUser" placeholder="Исполнитель">
+
+    <div class="modal-buttons">
+      <button onclick="createTask()">Создать</button>
+      <button onclick="closeModal()">Отмена</button>
+    </div>
+
+  </div>
+
+</div>
+
 
 <script src="team-tasks.js"></script>
 </body>
