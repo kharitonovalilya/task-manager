@@ -140,121 +140,234 @@ body {
   text-decoration: underline;
 }
 
-/* Основной flex-контейнер для dashboard */
-/* Основной контейнер */
-/* Основной контейнер */
-/* Основной контейнер */
-.dashboard {
-  display: flex;
-  margin: 0;
-  height: 100vh; /* полностью высота окна */
-  width: 100vw;  /* полностью ширина окна */
-  gap: 0;        /* убираем пустое пространство между панелями */
+/* Общие стили */
+body{
+  margin:0;
+  min-height:100vh;
+
+  background: linear-gradient(135deg,#667eea,#764ba2);
   font-family: Arial, sans-serif;
-  color: black;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* Контейнер страницы */
+.dashboard-page{
+  width:95vw;
+  height:90vh;
+}
+
+/* Заголовок */
+.dashboard-title{
+  text-align:center;
+  color:white;
+  font-size:36px;
+  margin-bottom:20px;
+}
+
+/* Основной контейнер */
+.dashboard{
+  display:flex;
+  width:100%;
+  height:90%;
+  gap:20px;
 }
 
 /* Панель команд */
-.teams-panel {
-  background: rgba(255,255,255,0.25);
+.teams-panel{
+
+  width:25%;
+  flex: 1;
+
+  background: rgba(255,255,255,0.2);
   backdrop-filter: blur(12px);
-  border-radius: 0; /* без скруглений, чтобы заняло весь экран по вертикали */
-  padding: 20px;
-  width: 25%;  /* ровно 1/4 ширины */
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  color: black;
-  box-sizing: border-box;
+
+  border-radius:20px;
+
+  padding:20px;
+
+  display:flex;
+  flex-direction:column;
+
+  color:white;
+
+  box-sizing:border-box;
+
 }
 
 /* Панель календаря */
-.calendar-panel {
-  background: rgba(255,255,255,0.25);
+.calendar-panel{
+
+  flex: 3;
+  width:75%;
+
+  background: rgba(255,255,255,0.2);
   backdrop-filter: blur(12px);
-  border-radius: 0;
-  padding: 20px;
-  width: 75%; /* остальная ширина */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  color: black;
-  box-sizing: border-box;
+
+  border-radius:20px;
+
+  padding:20px;
+
+  display:flex;
+  flex-direction:column;
+
+  color:white;
+
+  box-sizing:border-box;
 }
 
 /* Заголовки */
-.teams-panel h2, .calendar-panel h2 {
-  text-align: center;
-  font-size: 24px;
-  margin-bottom: 15px;
+.teams-panel h2,
+.calendar-panel h2{
+
+  text-align:center;
+
+  margin-bottom:20px;
+
+  font-size:24px;
+
 }
 
-/* Команды */
-.team-card {
-  background: rgba(255,255,255,0.35);
-  padding: 15px;
-  border-radius: 12px;
-  cursor: pointer;
-  text-align: center;
-  font-size: 20px;
-  color: black;
-  transition: 0.2s;
+/* Карточка команды */
+.team-card{
+
+  background: rgba(255,255,255,0.25);
+
+  padding:15px;
+
+  border-radius:12px;
+
+  margin-bottom:10px;
+
+  cursor:pointer;
+
+  text-align:center;
+
+  font-size:18px;
+
+  transition:0.2s;
+
 }
 
-.team-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+/* Hover команды */
+.team-card:hover{
+
+  transform:translateY(-3px);
+
+  box-shadow:0 10px 25px rgba(0,0,0,0.25);
+
 }
 
 /* Календарь */
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr); /* 7 дней недели */
-  grid-auto-rows: 1fr;                  /* ряды одинаковой высоты */
-  gap: 5px;
-  flex-grow: 1;
-  height: calc(100% - 50px);           /* оставляем место под заголовок */
+.calendar-grid{
+
+  display:grid;
+
+  grid-template-columns: repeat(7,1fr);
+
+  grid-template-rows: repeat(6,1fr);
+
+  gap:10px;
+
+  flex-grow:1;
+
+}
+
+/* День недели */
+.calendar-weekday{
+
+  text-align:center;
+
+  font-weight:bold;
+
+  font-size:16px;
+
 }
 
 /* День месяца */
-.calendar-day {
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(8px);
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  flex-direction: column;
-  cursor: pointer;
-  transition: 0.2s;
-  padding: 5px;
-  font-size: 16px;
-  color: black;
+.calendar-day{
+
+  background: rgba(255,255,255,0.25);
+
+  border-radius:10px;
+
+  padding:8px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  justify-content:flex-start;
+
+  font-size:14px;
+
+  transition:0.2s;
+
 }
 
-/* Дни недели сверху */
-.calendar-weekday {
-  font-weight: bold;
-  font-size: 18px;
-  text-align: center;
-  color: black;
+/* Hover дня */
+.calendar-day:hover{
+
+  background: rgba(255,255,255,0.35);
+
 }
 
 /* Точки задач */
-.task-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  margin-top: 5px;
+.task-dot{
+
+  width:10px;
+
+  height:10px;
+
+  border-radius:50%;
+
+  margin-top:4px;
+
 }
 
-.task-dot[data-done="true"] {
-  background-color: #4caf50;
+/* Сделано */
+.task-dot[data-done="true"]{
+
+  background:#4caf50;
+
 }
 
-.task-dot[data-done="false"] {
-  background-color: #e53e3e;
+/* Не сделано */
+.task-dot[data-done="false"]{
+
+  background:#e53e3e;
+
 }
+
+.dashboard-title-card{
+
+  width:300px;
+
+  margin:0 auto 25px auto;
+
+  background: rgba(255,255,255,0.25);
+
+  backdrop-filter: blur(12px);
+
+  border-radius:16px;
+
+  padding:15px;
+
+  text-align:center;
+
+  color:white;
+
+  box-shadow:0 8px 20px rgba(0,0,0,0.25);
+
+}
+
+.dashboard-title-card h1{
+  margin:0;
+  font-size:28px;
+}
+
 /* Стили для страницы задач команды */
 .team-page{
   width: 900px;

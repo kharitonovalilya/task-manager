@@ -5,19 +5,25 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
+<div class="dashboard-page">
 
-  <!-- Основной дашборд -->
+  <!-- Заголовок в карточке -->
+  <div class="dashboard-title-card">
+    <h1>Task Master</h1>
+  </div>
+
   <div class="dashboard">
 
-    <!-- Панель команд (левая часть) -->
+    <!-- Панель команд -->
     <div class="teams-panel">
       <h2>Мои команды</h2>
       <div id="teamsList"></div>
     </div>
 
-    <!-- Панель календаря (правая часть) -->
+    <!-- Панель календаря -->
     <div class="calendar-panel">
       <h2>Календарь</h2>
       <div id="calendarGrid" class="calendar-grid"></div>
@@ -25,6 +31,7 @@
 
   </div>
 
-  <script src="dashboard.js"></script>
+</div>
+
+<script src="dashboard.js"></script>
 </body>
-</html>
