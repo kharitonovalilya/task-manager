@@ -1,11 +1,11 @@
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, validator
+from datetime import date
 
 class TaskBase(BaseModel):
     title: str
     description: str | None
     completed: bool = False
-    deadline: datetime | None
+    deadline: date | None
     user_id: int
     team_id: int
 
@@ -14,7 +14,6 @@ class TaskCreate(TaskBase):
 
 class Task(TaskBase):
     id: int
-    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -22,7 +21,13 @@ class Task(TaskBase):
 class TaskUpdate(BaseModel):
     title: str | None
     description: str | None
-    completed: str | None
+    completed: bool | None
     deadline: str | None
     user_id: str | None
     team_id: str | None
+
+    @validator('completed', pre=True)
+    def parse_completed(cls, v):
+        if isinstance(v, str):
+            return v.lower() == 'true'
+        return v

@@ -514,3 +514,13 @@ body{
   transform: translateY(-2px);
   background: #f3f3f3;
 }
+
+.modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+}

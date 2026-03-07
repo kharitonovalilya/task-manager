@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from app.schemas.team import TeamCreate, Team, TeamMember
+from app.schemas.task import Task  # добавлено
 from app.crud import team as team_crud
+from app.crud import task as task_crud
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/teams", tags=["Teams"])
@@ -50,3 +52,11 @@ def remove_member(team_id: int, user_id: int, current_user: dict = Depends(get_c
 def get_members(team_id: int, current_user: dict = Depends(get_current_user)):
     members = team_crud.get_team_members(team_id)
     return members
+
+@router.get("/{team_id}/tasks", response_model=List[Task])
+def get_team_tasks(team_id: int, current_user: dict = Depends(get_current_user)):
+    # Проверяем, что пользователь является участником команды
+    if not team_crud.is_member(current_user["id"], team_id):
+        raise HTTPException(status_code=403, detail="You are not a member of this team")
+    tasks = task_crud.get_tasks_by_team(team_id)
+    return [Task(**t) for t in tasks]

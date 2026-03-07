@@ -110,3 +110,17 @@ def get_team_members(team_id: int):
     cur.close()
     conn.close()
     return members
+
+def is_member(user_id: int, team_id: int) -> bool:
+    conn = get_connection()
+    if not conn:
+        return False
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT 1 FROM team_members WHERE user_id = %s AND team_id = %s",
+        (user_id, team_id)
+    )
+    exists = cur.fetchone() is not None
+    cur.close()
+    conn.close()
+    return exists

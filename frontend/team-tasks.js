@@ -1,112 +1,222 @@
+const API = "http://localhost:8000/api/v1";
+
+// Получаем ID команды из URL
 const params = new URLSearchParams(window.location.search);
-const teamId = params.get("team");
+const teamId = params.get("teamId");
+
+if (!teamId) {
+    alert("Ошибка: не указана команда");
+    window.location.href = "dashboard.html";
+}
 
 let tasks = [];
+let currentFilter = 'all'; // 'all' или 'my'
 
-async function loadAllTasks(){
+// ======================= FETCH DATA ==========================
+async function loadAllTasks() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
 
-  const response = await fetch(`/api/teams/${teamId}/tasks`);
-  tasks = await response.json();
-
-  renderTasks(tasks);
+    try {
+        // Используем правильный эндпоинт: /teams/{teamId}/tasks
+        const response = await fetch(`${API}/teams/${teamId}/tasks`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error(`Ошибка загрузки задач: ${response.status}`);
+        tasks = await response.json();
+        renderTasks(tasks);
+        currentFilter = 'all';
+    } catch (error) {
+        console.error(error);
+        alert("Не удалось загрузить задачи");
+    }
 }
 
-async function loadMyTasks(){
+async function loadMyTasks() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-  const response = await fetch(`/api/teams/${teamId}/mytasks`);
-  const myTasks = await response.json();
+    try {
+        // Получаем информацию о текущем пользователе
+        const meResponse = await fetch(`${API}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!meResponse.ok) throw new Error("Ошибка получения данных пользователя");
+        const me = await meResponse.json();
+        const userId = me.id;
 
-  renderTasks(myTasks);
+        // Фильтруем задачи по user_id и team_id через query-параметры
+        const response = await fetch(`${API}/tasks?user_id=${userId}&team_id=${teamId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error(`Ошибка загрузки задач: ${response.status}`);
+        const myTasks = await response.json();
+        renderTasks(myTasks);
+        currentFilter = 'my';
+    } catch (error) {
+        console.error(error);
+        alert("Не удалось загрузить мои задачи");
+    }
 }
 
-function showMyTasks(){
-  loadMyTasks();
+function showMyTasks() {
+    loadMyTasks();
 }
 
-function showAllTasks(){
-  loadAllTasks();
+function showAllTasks() {
+    loadAllTasks();
 }
 
-function renderTasks(tasksList){
-
-  const container = document.getElementById("tasksContainer");
-  container.innerHTML = "";
-
-  tasksList.forEach(renderTask);
+// ======================= RENDER TASKS ========================
+function renderTasks(tasksList) {
+    const container = document.getElementById("tasksContainer");
+    if (!container) return;
+    container.innerHTML = "";
+    tasksList.forEach(task => renderTask(task));
 }
 
-function renderTask(task){
+function renderTask(task) {
+    const container = document.getElementById("tasksContainer");
+    if (!container) return;
 
-  const container = document.getElementById("tasksContainer");
+    const div = document.createElement("div");
+    div.className = "task-card";
+    if (task.completed) div.classList.add("done");
 
-  const div = document.createElement("div");
-  div.className = "task-card";
+    const deadline = task.deadline ? task.deadline.split('T')[0] : "Не указан";
+    const assignee = task.user_id ? `ID: ${task.user_id}` : "Не назначен";
 
-  if(task.done){
-    div.classList.add("done");
-  }
+    div.innerHTML = `
+        <div>
+            <b>${task.title}</b><br>
+            ${task.description ? task.description + '<br>' : ''}
+            Дедлайн: ${deadline}<br>
+            Исполнитель: ${assignee}
+        </div>
+        <input type="checkbox"
+            ${task.completed ? "checked" : ""}
+            onchange="toggleTask(${task.id}, this)">
+    `;
 
-  div.innerHTML = `
-    <div>
-      <b>${task.title}</b><br>
-      Дедлайн: ${task.deadline}<br>
-      Исполнитель: ${task.user}
-    </div>
-
-    <input type="checkbox"
-      ${task.done ? "checked" : ""}
-      onchange="toggleTask(${task.id}, this)">
-  `;
-
-  container.appendChild(div);
+    container.appendChild(div);
 }
 
-async function toggleTask(id, checkbox){
+// ======================= TOGGLE TASK ========================
+async function toggleTask(id, checkbox) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
 
-  const done = checkbox.checked;
+    const completed = checkbox.checked;
 
-  await fetch(`/api/tasks/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({done})
-  });
+    try {
+        const response = await fetch(`${API}/tasks/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ completed })
+        });
+        if (!response.ok) throw new Error("Ошибка обновления задачи");
+        if (currentFilter === 'all') {
+            loadAllTasks();
+        } else {
+            loadMyTasks();
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Не удалось обновить задачу");
+        checkbox.checked = !completed;
+    }
 }
 
-async function createTask(){
+// ======================= CREATE TASK ========================
+async function createTask() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
 
-  const title = document.getElementById("taskTitle").value;
-  const deadline = document.getElementById("taskDeadline").value;
-  const user = document.getElementById("taskUser").value;
+    const title = document.getElementById("taskTitle").value.trim();
+    const description = document.getElementById("taskDescription").value.trim();
+    const deadline = document.getElementById("taskDeadline").value;
+    const userInput = document.getElementById("taskUser").value.trim();
 
-  await fetch("/api/tasks",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body: JSON.stringify({
-      title,
-      deadline,
-      user,
-      teamId
-    })
-  });
+    if (!title || !deadline || !userInput) {
+        alert("Заполните название, дедлайн и ID исполнителя");
+        return;
+    }
 
-  closeModal();
-  loadAllTasks();
+    const userId = parseInt(userInput);
+    if (isNaN(userId)) {
+        alert("ID исполнителя должно быть числом");
+        return;
+    }
+
+    const taskData = {
+        title: title,
+        description: description || "",
+        deadline: deadline,
+        user_id: userId,
+        team_id: parseInt(teamId),
+        completed: false
+    };
+
+    try {
+        const response = await fetch(`${API}/tasks`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(taskData)
+        });
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.detail || "Ошибка создания задачи");
+        }
+        closeModal();
+        if (currentFilter === 'all') {
+            loadAllTasks();
+        } else {
+            loadMyTasks();
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Не удалось создать задачу: " + error.message);
+    }
 }
 
-function openModal(){
-  document.getElementById("taskModal").style.display = "flex";
+// ======================= MODAL FUNCTIONS ========================
+function openModal() {
+    const modal = document.getElementById("taskModal");
+    if (modal) modal.style.display = "flex";
 }
 
-function closeModal(){
-  document.getElementById("taskModal").style.display = "none";
+function closeModal() {
+    const modal = document.getElementById("taskModal");
+    if (modal) modal.style.display = "none";
+    document.getElementById("taskTitle").value = "";
+    document.getElementById("taskDescription").value = "";
+    document.getElementById("taskDeadline").value = "";
+    document.getElementById("taskUser").value = "";
 }
 
 function goBack() {
-  window.location.href = "dashboard.html";
+    window.location.href = "dashboard.html";
 }
 
-loadMyTasks();
+// ======================= INIT ===============================
+if (!teamId) {
+    alert("Ошибка: не указана команда");
+    window.location.href = "dashboard.html";
+} else {
+    loadAllTasks();
+}

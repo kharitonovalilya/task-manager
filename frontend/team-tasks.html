@@ -5,7 +5,6 @@
   <title>Team Tasks</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
   <div class="back-button" onclick="goBack()">
@@ -14,10 +13,9 @@
 
 <div class="team-page">
 
-
   <div class="team-title-card">
-  <h1 id="teamTitle">Команда 1</h1>
-</div>
+    <h1 id="teamTitle">Команда 1</h1>
+  </div>
 
   <div class="tabs">
     <button onclick="showMyTasks()">Мои задачи</button>
@@ -35,26 +33,18 @@
 
 <!-- POPUP -->
 <div id="taskModal" class="modal">
-
   <div class="modal-content">
-
     <h2>Новая задача</h2>
-
     <input id="taskTitle" placeholder="Название задачи">
-
+    <textarea id="taskDescription" placeholder="Описание задачи" rows="3"></textarea>
     <input id="taskDeadline" type="date">
-
-    <input id="taskUser" placeholder="Исполнитель">
-
+    <input id="taskUser" placeholder="ID исполнителя">
     <div class="modal-buttons">
       <button onclick="createTask()">Создать</button>
       <button onclick="closeModal()">Отмена</button>
     </div>
-
   </div>
-
 </div>
-
 
 <script src="team-tasks.js"></script>
 </body>
