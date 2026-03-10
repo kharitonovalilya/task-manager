@@ -38,7 +38,7 @@ def get_team(team_id: int):
     if not conn:
         return None
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM teams WHERE id = %s", (team_id))
+    cur.execute("SELECT * FROM teams WHERE id = %s", (team_id,))  # ← добавить запятую
     team = cur.fetchone()
     cur.close()
     conn.close()
