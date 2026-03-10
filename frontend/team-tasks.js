@@ -90,15 +90,23 @@ function renderTask(task) {
     const assignee = task.user_id ? `ID: ${task.user_id}` : "Не назначен";
 
     div.innerHTML = `
-        <div>
-            <b>${task.title}</b><br>
-            ${task.description ? task.description + '<br>' : ''}
-            Дедлайн: ${deadline}<br>
-            Исполнитель: ${assignee}
-        </div>
+    <div>
+        <b>${task.title}</b><br>
+        ${task.description ? task.description + '<br>' : ''}
+        Дедлайн: ${deadline}<br>
+        Исполнитель: ${assignee}
+    </div>
+
+    <div class="task-actions">
+
+        <button onclick="openEditModal(${task.id})">
+        ✏️
+        </button>
+
         <input type="checkbox"
             ${task.completed ? "checked" : ""}
             onchange="toggleTask(${task.id}, this)">
+    </div>
     `;
 
     container.appendChild(div);
@@ -213,6 +221,64 @@ function goBack() {
     window.location.href = "dashboard.html";
 }
 
+let editingTaskId = null;
+
+function openEditModal(taskId){
+
+    const task = tasks.find(t => t.id === taskId);
+
+    editingTaskId = taskId;
+
+    document.getElementById("editTaskTitle").value = task.title;
+    document.getElementById("editTaskDescription").value = task.description || "";
+    document.getElementById("editTaskDeadline").value = task.deadline.split('T')[0];
+    document.getElementById("editTaskUser").value = task.user_id || "";
+
+    document.getElementById("editTaskModal").style.display = "flex";
+}
+
+async function saveTaskEdit(){
+
+    const token = localStorage.getItem('token');
+
+    const title = document.getElementById("editTaskTitle").value;
+    const description = document.getElementById("editTaskDescription").value;
+    const deadline = document.getElementById("editTaskDeadline").value;
+    const user_id = parseInt(document.getElementById("editTaskUser").value);
+
+    const data = {
+        title,
+        description,
+        deadline,
+        user_id
+    };
+
+    try{
+
+        const response = await fetch(`${API}/tasks/${editingTaskId}`,{
+            method:"PATCH",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":`Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if(!response.ok) throw new Error();
+
+        closeEditModal();
+
+        if(currentFilter === 'all'){
+            loadAllTasks();
+        } else {
+            loadMyTasks();
+        }
+
+    }catch(e){
+        alert("Ошибка редактирования задачи");
+    }
+}
+
 // ======================= INIT ===============================
 if (!teamId) {
     alert("Ошибка: не указана команда");
@@ -220,3 +286,4 @@ if (!teamId) {
 } else {
     loadAllTasks();
 }
+

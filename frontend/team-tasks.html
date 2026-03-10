@@ -31,6 +31,27 @@
 
 </div>
 
+<div id="editTaskModal" class="modal">
+  <div class="modal-content">
+
+    <h2>Редактировать задачу</h2>
+
+    <input id="editTaskTitle" placeholder="Название задачи">
+
+    <textarea id="editTaskDescription" rows="3" placeholder="Описание"></textarea>
+
+    <input id="editTaskDeadline" type="date">
+
+    <input id="editTaskUser" placeholder="ID исполнителя">
+
+    <div class="modal-buttons">
+      <button onclick="saveTaskEdit()">Сохранить</button>
+      <button onclick="closeEditModal()">Отмена</button>
+    </div>
+
+  </div>
+</div>
+
 <!-- POPUP -->
 <div id="taskModal" class="modal">
   <div class="modal-content">
