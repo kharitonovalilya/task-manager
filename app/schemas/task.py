@@ -1,12 +1,11 @@
 from pydantic import BaseModel, validator
 from datetime import date
-from typing import Optional
 
 class TaskBase(BaseModel):
     title: str
-    description: Optional[str] = None
+    description: str | None = None
     completed: bool = False
-    deadline: Optional[date] = None
+    deadline: date | None = None
     user_id: int
     team_id: int
 
@@ -20,12 +19,12 @@ class Task(TaskBase):
         from_attributes = True
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    completed: Optional[bool] = None
-    deadline: Optional[date] = None
-    user_id: Optional[int] = None
-    team_id: Optional[int] = None
+    title: str | None = None
+    description: str | None = None
+    completed: bool | None = None
+    deadline: date | None = None
+    user_id: int | None = None
+    team_id: int | None = None
 
     @validator('completed', pre=True)
     def parse_completed(cls, v):
