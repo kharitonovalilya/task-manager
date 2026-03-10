@@ -31,25 +31,25 @@ async function login() {
     }
 }
 
-async function loadTasks() {
-
-    const response = await fetch(API + "/tasks", {
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        }
-    });
-
-    const tasks = await response.json();
-
-    const list = document.getElementById("taskList");
-    list.innerHTML = "";
-
-    tasks.forEach(task => {
-        const li = document.createElement("li");
-        li.textContent = task.title;
-        list.appendChild(li);
-    });
-}
+//async function loadTasks() {
+//
+//  const response = await fetch(API + "/tasks", {
+//        headers: {
+//            "Authorization": "Bearer " + localStorage.getItem("token")
+//        }
+//    });
+//
+//    const tasks = await response.json();
+//
+//    const list = document.getElementById("taskList");
+//    list.innerHTML = "";
+//
+//    tasks.forEach(task => {
+//        const li = document.createElement("li");
+//        li.textContent = task.title;
+//        list.appendChild(li);
+//    });
+//}
 
 function register() {
   const email = document.getElementById("email").value;
@@ -91,3 +91,5 @@ function logout() {
 function goToRegister() {
     window.location.href = "register.html";
 }
+
+tasks

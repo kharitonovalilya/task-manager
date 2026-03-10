@@ -3,7 +3,7 @@ const API = "http://localhost:8000/api/v1";
 let teams = [];
 let tasks = [];
 
-// ======================= FETCH DATA ==========================
+//====================== FETCH DATA ==========================
 async function fetchTeams() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -165,6 +165,10 @@ async function toggleDone(id, checkbox) {
     checkbox.checked = !newStatus;
     alert("Не удалось обновить задачу");
   }
+}
+
+function openCreateTeam(){
+  alert("Создание команды");
 }
 
 // ======================= INIT ===============================
