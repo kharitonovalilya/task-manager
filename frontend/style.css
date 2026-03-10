@@ -567,3 +567,17 @@ body{
     resize: vertical;
     box-sizing: border-box;
 }
+
+.task-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.task-actions button{
+  border:none;
+  background:rgba(255,255,255,0.3);
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
