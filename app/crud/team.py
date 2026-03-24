@@ -55,6 +55,20 @@ def get_team_lead_id(lead_id: int):
     conn.close()
     return leader
 
+def is_team_lead(user_id: int, team_id: int) -> bool:
+    conn = get_connection()
+    if not conn:
+        return False
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT 1 FROM teams WHERE id = %s AND lead_id = %s",
+        (team_id, user_id)
+    )
+    exists = cur.fetchone() is not None
+    cur.close()
+    conn.close()
+    return exists
+
 def delete_team(team_id: int):
     conn = get_connection()
     if not conn:
