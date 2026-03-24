@@ -9,36 +9,30 @@
 <body>
 
 <div class="dashboard-page">
-
-  <!-- Заголовок в карточке -->
-  <div class="dashboard-title-card">
-    <h1>Task Master</h1>
-  </div>
-
   <div class="dashboard">
 
-    <!-- Панель команд -->
     <div class="teams-panel">
-  <h2>Мои команды</h2>
+      <h2>Мои команды</h2>
+      <div id="teamsList"></div>
 
-  <div id="teamsList"></div>
+      <button class="create-team-btn" onclick="openCreateTeam()">
+        + Создать команду
+      </button>
+    </div>
 
-  <!-- кнопка создания команды -->
-  <button class="create-team-btn" onclick="openCreateTeam()">
-    + Создать команду
-  </button>
-
-</div>
-
-    <!-- Панель календаря -->
     <div class="calendar-panel">
-      <h2>Календарь</h2>
+      <div class="calendar-header">
+        <button onclick="prevMonth()">←</button>
+        <h2 id="monthTitle"></h2>
+        <button onclick="nextMonth()">→</button>
+      </div>
+
       <div id="calendarGrid" class="calendar-grid"></div>
     </div>
 
   </div>
-
 </div>
 
-<script src="dashboard.js"></script>
-</body>
+<script src="dashboard.js"></script> 
+    </body>
+</html>

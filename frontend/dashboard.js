@@ -2,11 +2,88 @@ const API = "http://localhost:8000/api/v1";
 
 let teams = [];
 let tasks = [];
+let currentDate = new Date();
 
-//====================== FETCH DATA ==========================
+// ОЧЕНЬ ВАЖНО: привязываем к window, чтобы HTML их видел
+window.prevMonth = function () {
+  console.log("Клик: прошлый месяц");
+  currentDate.setMonth(currentDate.getMonth() - 1);
+  renderCalendar();
+};
+
+window.nextMonth = function () {
+  console.log("Клик: следующий месяц");
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  renderCalendar();
+};
+
+const monthNames = [
+  "Январь","Февраль","Март","Апрель","Май","Июнь",
+  "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"
+];
+
+// ======================= INIT =======================
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. Сначала рисуем интерфейс, который не зависит от сервера
+  renderCalendar();
+  
+  // 2. Затем загружаем данные
+  fetchTeams();
+  fetchTasks();
+});
+
+// ======================= CALENDAR LOGIC =======================
+function renderCalendar() {
+  const grid = document.getElementById("calendarGrid");
+  const title = document.getElementById("monthTitle");
+
+  if (!grid || !title) return;
+
+  grid.innerHTML = "";
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  // Устанавливаем название месяца
+  title.innerText = `${monthNames[month]} ${year}`;
+
+  // Логика расчета дней
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const weekdays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+  weekdays.forEach(day => {
+    const div = document.createElement("div");
+    div.className = "calendar-weekday";
+    div.innerText = day;
+    grid.appendChild(div);
+  });
+
+  // Смещение (Пн - первый день)
+  let startShift = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+  for (let i = 0; i < startShift; i++) {
+    const div = document.createElement("div");
+    div.className = "calendar-day empty";
+    grid.appendChild(div);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const div = document.createElement("div");
+    div.className = "calendar-day";
+    div.innerHTML = `<b>${d}</b>`;
+    grid.appendChild(div);
+  }
+}
+
+// Привязываем функции к window ПРЯМО СЕЙЧАС, чтобы они были доступны кнопкам
+
+
+// ======================= API FETCHING =======================
 async function fetchTeams() {
   const token = localStorage.getItem('token');
   if (!token) {
+    console.warn("Токен отсутствует, перенаправление...");
     window.location.href = 'login.html';
     return;
   }
@@ -15,162 +92,44 @@ async function fetchTeams() {
     const res = await fetch(`${API}/teams`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) throw new Error(`Ошибка загрузки команд: ${res.status}`);
+    if (!res.ok) throw new Error("Ошибка сервера");
+    
     teams = await res.json();
     renderTeams();
   } catch (err) {
-    console.error('fetchTeams error:', err);
-    alert('Не удалось загрузить список команд');
+    console.error("Ошибка загрузки команд:", err);
   }
 }
 
 async function fetchTasks() {
   const token = localStorage.getItem('token');
-  if (!token) return; // без токена задачи не загружаем
+  if (!token) return;
 
   try {
     const res = await fetch(`${API}/tasks`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) throw new Error(`Ошибка загрузки задач: ${res.status}`);
-    tasks = await res.json();
-    renderCalendar();
+    if (res.ok) tasks = await res.json();
   } catch (err) {
-    console.error('fetchTasks error:', err);
+    console.error("Ошибка загрузки задач:", err);
   }
 }
 
-// ======================= RENDER TEAMS ========================
 function renderTeams() {
   const container = document.getElementById("teamsList");
-  if (!container) return;
-  container.innerHTML = "";
+  if (!container || !Array.isArray(teams)) return;
 
+  container.innerHTML = "";
   teams.forEach(team => {
     const div = document.createElement("div");
     div.className = "team-card";
     div.textContent = team.name;
-    div.onclick = () => {
-      // Переход на страницу задач команды с параметром teamId
-      window.location.href = `team-tasks.html?teamId=${team.id}`;
-    };
+    div.onclick = () => window.location.href = `team-tasks.html?teamId=${team.id}`;
     container.appendChild(div);
   });
 }
 
-// ======================= RENDER CALENDAR ====================
-function renderCalendar(year = 2026, month = 2) {
-  const grid = document.getElementById("calendarGrid");
-  if (!grid) return;
-  grid.innerHTML = "";
+window.openCreateTeam = function () {
+  alert("Создание команды в разработке");
+};
 
-  const weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-  weekdays.forEach(day => {
-    const div = document.createElement("div");
-    div.className = "calendar-weekday";
-    div.textContent = day;
-    grid.appendChild(div);
-  });
-
-  const firstDay = new Date(year, month, 1).getDay(); // 0 = воскресенье
-  // Корректировка: понедельник = 0, воскресенье = 6
-  const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
-
-  for (let i = 0; i < adjustedFirstDay; i++) {
-    grid.appendChild(document.createElement("div"));
-  }
-
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "calendar-day";
-    dayDiv.textContent = day;
-
-    // Ищем задачи, у которых deadline совпадает с этой датой
-    tasks.filter(t => t.deadline && t.deadline.startsWith(dateStr)).forEach(task => {
-      const dot = document.createElement("div");
-      dot.className = "task-dot";
-      dot.dataset.done = task.completed; // используем completed с бэкенда
-      dot.title = task.title;
-      dayDiv.appendChild(dot);
-    });
-
-    grid.appendChild(dayDiv);
-  }
-}
-
-// ======================= SHOW TASKS BY DATE =================
-function showTasksByDate() {
-  const dateInput = document.getElementById("calendar");
-  if (!dateInput) return;
-
-  const date = dateInput.value;
-  const container = document.getElementById("tasksByDate");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  const filteredTasks = tasks.filter(t => t.deadline && t.deadline.startsWith(date));
-  if (filteredTasks.length === 0) {
-    container.textContent = "Нет задач на эту дату";
-    return;
-  }
-
-  filteredTasks.forEach(task => {
-    const div = document.createElement("div");
-    div.className = "task-card";
-    if (task.completed) div.classList.add("done");
-
-    div.innerHTML = `
-      <span>${task.title}</span>
-      <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleDone(${task.id}, this)">
-    `;
-    container.appendChild(div);
-  });
-}
-
-// ======================= TOGGLE DONE =======================
-async function toggleDone(id, checkbox) {
-  const task = tasks.find(t => t.id === id);
-  if (!task) return;
-
-  const newStatus = checkbox.checked;
-
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = 'login.html';
-      return;
-    }
-
-    const res = await fetch(`${API}/tasks/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({ completed: newStatus }) // бэкенд ожидает completed
-    });
-
-    if (!res.ok) throw new Error(`Ошибка обновления: ${res.status}`);
-
-    // Обновляем локальное состояние
-    task.completed = newStatus;
-    showTasksByDate(); // обновляем отображение, если окно открыто
-  } catch (err) {
-    console.error("Ошибка обновления задачи:", err);
-    // Возвращаем чекбокс в исходное состояние
-    checkbox.checked = !newStatus;
-    alert("Не удалось обновить задачу");
-  }
-}
-
-function openCreateTeam(){
-  alert("Создание команды");
-}
-
-// ======================= INIT ===============================
-fetchTeams();
-fetchTasks();

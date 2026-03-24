@@ -3,6 +3,7 @@ const API = "http://localhost:8000/api/v1";
 // Получаем ID команды из URL
 const params = new URLSearchParams(window.location.search);
 const teamId = params.get("teamId");
+let isLeader = false;
 
 if (!teamId) {
     alert("Ошибка: не указана команда");
@@ -11,6 +12,54 @@ if (!teamId) {
 
 let tasks = [];
 let currentFilter = 'all'; // 'all' или 'my'
+
+async function loadTeamInfo(){
+
+    const token = localStorage.getItem('token');
+
+    try{
+
+        const teamResponse = await fetch(`${API}/teams/${teamId}`,{
+            headers:{
+                "Authorization":`Bearer ${token}`
+            }
+        });
+
+        if(!teamResponse.ok) throw new Error();
+
+        const team = await teamResponse.json();
+
+        document.getElementById("teamTitle").innerText = team.name;
+
+        // получаем текущего пользователя
+        const meResponse = await fetch(`${API}/auth/me`,{
+            headers:{
+                "Authorization":`Bearer ${token}`
+            }
+        });
+
+        const me = await meResponse.json();
+
+        // проверяем лидер ли он
+        isLeader = team.lead_id === me.id;
+
+        updateLeaderUI();
+
+    }catch(e){
+        console.error("Ошибка загрузки команды");
+    }
+}
+
+function updateLeaderUI(){
+
+    const createBtn = document.getElementById("createTaskBtn");
+
+    if(!isLeader){
+        createBtn.disabled = true;
+        createBtn.classList.add("disabled-btn");
+    }
+
+}
 
 // ======================= FETCH DATA ==========================
 async function loadAllTasks() {
@@ -90,37 +139,52 @@ function renderTask(task) {
     const assignee = task.user_id ? `ID: ${task.user_id}` : "Не назначен";
 
     div.innerHTML = `
-    <div>
-        <b>${task.title}</b><br>
-        ${task.description ? task.description + '<br>' : ''}
-        Дедлайн: ${deadline}<br>
-        Исполнитель: ${assignee}
-    </div>
 
-    <div class="task-actions">
+<div class="task-left">
+  <button 
+    class="done-btn ${task.completed ? "completed" : ""}"
+    onclick="toggleTask(${task.id}, this)">
+    ✔
+  </button>
+</div>
 
-        <button onclick="openEditModal(${task.id})">
-        ✏️
-        </button>
+<div class="task-content">
+  <b>${task.title}</b><br>
+  ${task.description ? task.description + '<br>' : ''}
+  Дедлайн: ${deadline}<br>
+  Исполнитель: ${assignee}
+</div>
 
-        <input type="checkbox"
-            ${task.completed ? "checked" : ""}
-            onchange="toggleTask(${task.id}, this)">
-    </div>
-    `;
+<div class="task-right">
+
+  <button 
+${!isLeader ? "disabled" : ""}
+onclick="openEditModal(${task.id})">
+    ✏️
+  </button>
+
+  <button 
+${!isLeader ? "disabled" : ""}
+onclick="deleteTask(${task.id})">
+    🗑
+  </button>
+
+</div>
+`;
 
     container.appendChild(div);
 }
 
 // ======================= TOGGLE TASK ========================
-async function toggleTask(id, checkbox) {
+async function toggleTask(id, button) {
+
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
 
-    const completed = checkbox.checked;
+    const completed = !button.classList.contains("completed");
 
     try {
         const response = await fetch(`${API}/tasks/${id}`, {
@@ -131,16 +195,17 @@ async function toggleTask(id, checkbox) {
             },
             body: JSON.stringify({ completed })
         });
+
         if (!response.ok) throw new Error("Ошибка обновления задачи");
-        if (currentFilter === 'all') {
-            loadAllTasks();
-        } else {
-            loadMyTasks();
-        }
+
+        button.classList.toggle("completed");
+
+        if (currentFilter === 'all') loadAllTasks();
+        else loadMyTasks();
+
     } catch (error) {
         console.error(error);
         alert("Не удалось обновить задачу");
-        checkbox.checked = !completed;
     }
 }
 
@@ -279,11 +344,40 @@ async function saveTaskEdit(){
     }
 }
 
+async function deleteTask(id){
+
+    const token = localStorage.getItem('token');
+
+    if(!confirm("Удалить задачу?")) return;
+
+    try{
+
+        const response = await fetch(`${API}/tasks/${id}`,{
+            method:"DELETE",
+            headers:{
+                "Authorization":`Bearer ${token}`
+            }
+        });
+
+        if(!response.ok) throw new Error();
+
+        if(currentFilter === 'all') loadAllTasks();
+        else loadMyTasks();
+
+    }catch(e){
+        alert("Не удалось удалить задачу");
+    }
+}
+
+
+
 // ======================= INIT ===============================
 if (!teamId) {
     alert("Ошибка: не указана команда");
     window.location.href = "dashboard.html";
 } else {
+    loadTeamInfo();
     loadAllTasks();
 }
+
 
