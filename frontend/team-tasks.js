@@ -1,386 +1,319 @@
 const API = "http://localhost:8000/api/v1";
 
-// Получаем ID команды из URL
 const params = new URLSearchParams(window.location.search);
 const teamId = params.get("teamId");
-let isLeader = false;
-
-if (!teamId) {
-    alert("Ошибка: не указана команда");
-    window.location.href = "dashboard.html";
-}
 
 let tasks = [];
-let currentFilter = 'all'; // 'all' или 'my'
+let isLeader = false;
+let currentFilter = "all"; // all | done | not_done | my
+let currentUserId = null;
 
-async function loadTeamInfo(){
+// ================= INIT =================
 
-    const token = localStorage.getItem('token');
+document.addEventListener("DOMContentLoaded", () => {
+  if (!teamId) {
+    alert("Ошибка: не указана команда");
+    window.location.href = "dashboard.html";
+    return;
+  }
 
-    try{
+  init();
+});
 
-        const teamResponse = await fetch(`${API}/teams/${teamId}`,{
-            headers:{
-                "Authorization":`Bearer ${token}`
-            }
-        });
-
-        if(!teamResponse.ok) throw new Error();
-
-        const team = await teamResponse.json();
-
-        document.getElementById("teamTitle").innerText = team.name;
-
-        // получаем текущего пользователя
-        const meResponse = await fetch(`${API}/auth/me`,{
-            headers:{
-                "Authorization":`Bearer ${token}`
-            }
-        });
-
-        const me = await meResponse.json();
-
-        // проверяем лидер ли он
-        isLeader = team.lead_id === me.id;
-
-        updateLeaderUI();
-
-    }catch(e){
-        console.error("Ошибка загрузки команды");
-    }
+async function init() {
+  await loadTeamInfo();
+  await loadTasks();
 }
 
-function updateLeaderUI(){
+// ================= TEAM INFO =================
 
-    const createBtn = document.getElementById("createTaskBtn");
+async function loadTeamInfo() {
+  const token = localStorage.getItem("token");
 
-    if(!isLeader){
-        createBtn.disabled = true;
-        createBtn.classList.add("disabled-btn");
-    }
+  try {
+    const teamRes = await fetch(`${API}/teams/${teamId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
+    const team = await teamRes.json();
+
+    document.getElementById("teamTitle").innerText = team.name;
+
+    const meRes = await fetch(`${API}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const me = await meRes.json();
+
+    currentUserId = me.id;
+    isLeader = Number(team.lead_id) === Number(me.id);
+
+    updateLeaderUI();
+
+  } catch (e) {
+    console.error(e);
+  }
 }
 
-// ======================= FETCH DATA ==========================
-async function loadAllTasks() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = 'login.html';
-        return;
-    }
+function updateLeaderUI() {
+  const btn = document.getElementById("createTaskBtn");
 
-    try {
-        // Используем правильный эндпоинт: /teams/{teamId}/tasks
-        const response = await fetch(`${API}/teams/${teamId}/tasks`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) throw new Error(`Ошибка загрузки задач: ${response.status}`);
-        tasks = await response.json();
-        renderTasks(tasks);
-        currentFilter = 'all';
-    } catch (error) {
-        console.error(error);
-        alert("Не удалось загрузить задачи");
-    }
+  if (!isLeader) {
+    btn.disabled = true;
+    btn.classList.add("disabled-btn");
+  }
 }
 
-async function loadMyTasks() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+// ================= LOAD TASKS =================
 
-    try {
-        // Получаем информацию о текущем пользователе
-        const meResponse = await fetch(`${API}/auth/me`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!meResponse.ok) throw new Error("Ошибка получения данных пользователя");
-        const me = await meResponse.json();
-        const userId = me.id;
+async function loadTasks() {
+  const token = localStorage.getItem("token");
 
-        // Фильтруем задачи по user_id и team_id через query-параметры
-        const response = await fetch(`${API}/tasks?user_id=${userId}&team_id=${teamId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) throw new Error(`Ошибка загрузки задач: ${response.status}`);
-        const myTasks = await response.json();
-        renderTasks(myTasks);
-        currentFilter = 'my';
-    } catch (error) {
-        console.error(error);
-        alert("Не удалось загрузить мои задачи");
-    }
-    tasks = await response.json();
-    renderTasks(tasks);
-    renderCalendar(); // 👈 ДОБАВИТЬ
+  try {
+    const res = await fetch(`${API}/teams/${teamId}/tasks`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    tasks = await res.json();
+    renderTasks();
+
+  } catch (e) {
+    console.error(e);
+  }
 }
 
-function showMyTasks() {
-    loadMyTasks();
-}
+// ================= RENDER =================
 
-function showAllTasks() {
-    loadAllTasks();
-}
+function renderTasks() {
+  const container = document.getElementById("tasksContainer");
+  container.innerHTML = "";
 
-// ======================= RENDER TASKS ========================
-function renderTasks(tasksList) {
-    const container = document.getElementById("tasksContainer");
-    if (!container) return;
-    container.innerHTML = "";
-    tasksList.forEach(task => renderTask(task));
-}
+  let filtered = tasks;
 
-function renderTask(task) {
-    const container = document.getElementById("tasksContainer");
-    if (!container) return;
+  if (currentFilter === "done") {
+    filtered = tasks.filter(t => t.completed);
+  }
 
+  if (currentFilter === "not_done") {
+    filtered = tasks.filter(t => !t.completed);
+  }
+
+  if (currentFilter === "my") {
+    filtered = tasks.filter(t => t.user_id === currentUserId);
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = "<p style='text-align:center;opacity:0.6'>Нет задач</p>";
+    return;
+  }
+
+  filtered.forEach(task => {
     const div = document.createElement("div");
     div.className = "task-card";
     if (task.completed) div.classList.add("done");
 
-    const deadline = task.deadline ? task.deadline.split('T')[0] : "Не указан";
-    const assignee = task.user_id ? `ID: ${task.user_id}` : "Не назначен";
-
     div.innerHTML = `
+      <div class="task-left">
+        <button onclick="toggleTask(${task.id}, this)" 
+          class="done-btn ${task.completed ? "completed" : ""}">
+          ✔
+        </button>
+      </div>
 
-<div class="task-left">
-  <button 
-    class="done-btn ${task.completed ? "completed" : ""}"
-    onclick="toggleTask(${task.id}, this)">
-    ✔
-  </button>
-</div>
+      <div class="task-content">
+        <b>${task.title}</b><br>
+        ${task.description || ""}<br>
+        Дедлайн: ${task.deadline ? task.deadline.split("T")[0] : "-"}<br>
+        Исполнитель: ${task.user_id}
+      </div>
 
-<div class="task-content">
-  <b>${task.title}</b><br>
-  ${task.description ? task.description + '<br>' : ''}
-  Дедлайн: ${deadline}<br>
-  Исполнитель: ${assignee}
-</div>
-
-<div class="task-right">
-
-  <button 
-${!isLeader ? "disabled" : ""}
-onclick="openEditModal(${task.id})">
-    ✏️
-  </button>
-
-  <button 
-${!isLeader ? "disabled" : ""}
-onclick="deleteTask(${task.id})">
-    🗑
-  </button>
-
-</div>
-`;
+      <div class="task-right">
+        <button onclick="handleEdit(${task.id})">✏️</button>
+        <button onclick="handleDelete(${task.id})">🗑</button>
+      </div>
+    `;
 
     container.appendChild(div);
+  });
 }
 
-// ======================= TOGGLE TASK ========================
+// ================= FILTERS =================
+
+window.showAllTasks = function () {
+  currentFilter = "all";
+  renderTasks();
+};
+
+window.showDoneTasks = function () {
+  currentFilter = "done";
+  renderTasks();
+};
+
+window.showNotDoneTasks = function () {
+  currentFilter = "not_done";
+  renderTasks();
+};
+
+window.showMyTasks = function () {
+  currentFilter = "my";
+  renderTasks();
+};
+
+// ================= TASK ACTIONS =================
+
 async function toggleTask(id, button) {
+  const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = 'login.html';
-        return;
-    }
+  const completed = !button.classList.contains("completed");
 
-    const completed = !button.classList.contains("completed");
+  try {
+    await fetch(`${API}/tasks/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ completed })
+    });
 
-    try {
-        const response = await fetch(`${API}/tasks/${id}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ completed })
-        });
+    loadTasks();
 
-        if (!response.ok) throw new Error("Ошибка обновления задачи");
-
-        button.classList.toggle("completed");
-
-        if (currentFilter === 'all') loadAllTasks();
-        else loadMyTasks();
-
-    } catch (error) {
-        console.error(error);
-        alert("Не удалось обновить задачу");
-    }
+  } catch (e) {
+    alert("Ошибка обновления");
+  }
 }
 
-// ======================= CREATE TASK ========================
+// ================= CREATE =================
+
 async function createTask() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = 'login.html';
-        return;
-    }
+  const token = localStorage.getItem("token");
 
-    const title = document.getElementById("taskTitle").value.trim();
-    const description = document.getElementById("taskDescription").value.trim();
-    const deadline = document.getElementById("taskDeadline").value;
-    const userInput = document.getElementById("taskUser").value.trim();
+  const data = {
+    title: document.getElementById("taskTitle").value,
+    description: document.getElementById("taskDescription").value,
+    deadline: document.getElementById("taskDeadline").value,
+    user_id: parseInt(document.getElementById("taskUser").value),
+    team_id: Number(teamId)
+  };
 
-    if (!title || !deadline || !userInput) {
-        alert("Заполните название, дедлайн и ID исполнителя");
-        return;
-    }
+  try {
+    await fetch(`${API}/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
 
-    const userId = parseInt(userInput);
-    if (isNaN(userId)) {
-        alert("ID исполнителя должно быть числом");
-        return;
-    }
+    closeModal();
+    loadTasks();
 
-    const taskData = {
-        title: title,
-        description: description || "",
-        deadline: deadline,
-        user_id: userId,
-        team_id: parseInt(teamId),
-        completed: false
-    };
-
-    try {
-        const response = await fetch(`${API}/tasks`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify(taskData)
-        });
-        if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.detail || "Ошибка создания задачи");
-        }
-        closeModal();
-        if (currentFilter === 'all') {
-            loadAllTasks();
-        } else {
-            loadMyTasks();
-        }
-    } catch (error) {
-        console.error(error);
-        alert("Не удалось создать задачу: " + error.message);
-    }
+  } catch (e) {
+    alert("Ошибка создания задачи");
+  }
 }
 
-// ======================= MODAL FUNCTIONS ========================
-function openModal() {
-    const modal = document.getElementById("taskModal");
-    if (modal) modal.style.display = "flex";
+// ================= DELETE =================
+
+function handleDelete(id) {
+  if (!isLeader) {
+    alert("Только лидер может удалять задачи");
+    return;
+  }
+  deleteTask(id);
 }
 
-function closeModal() {
-    const modal = document.getElementById("taskModal");
-    if (modal) modal.style.display = "none";
-    document.getElementById("taskTitle").value = "";
-    document.getElementById("taskDescription").value = "";
-    document.getElementById("taskDeadline").value = "";
-    document.getElementById("taskUser").value = "";
+async function deleteTask(id) {
+  const token = localStorage.getItem("token");
+
+  if (!confirm("Удалить задачу?")) return;
+
+  try {
+    await fetch(`${API}/tasks/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    loadTasks();
+
+  } catch (e) {
+    alert("Ошибка удаления");
+  }
 }
 
-function goBack() {
-    window.location.href = "dashboard.html";
-}
+// ================= EDIT =================
 
 let editingTaskId = null;
 
-function openEditModal(taskId){
-
-    const task = tasks.find(t => t.id === taskId);
-
-    editingTaskId = taskId;
-
-    document.getElementById("editTaskTitle").value = task.title;
-    document.getElementById("editTaskDescription").value = task.description || "";
-    document.getElementById("editTaskDeadline").value = task.deadline.split('T')[0];
-    document.getElementById("editTaskUser").value = task.user_id || "";
-
-    document.getElementById("editTaskModal").style.display = "flex";
+function handleEdit(id) {
+  if (!isLeader) {
+    alert("Только лидер может редактировать задачи");
+    return;
+  }
+  openEditModal(id);
 }
 
-async function saveTaskEdit(){
+function openEditModal(id) {
+  const task = tasks.find(t => t.id === id);
+  editingTaskId = id;
 
-    const token = localStorage.getItem('token');
+  document.getElementById("editTaskTitle").value = task.title;
+  document.getElementById("editTaskDescription").value = task.description || "";
+  document.getElementById("editTaskDeadline").value = task.deadline?.split("T")[0] || "";
+  document.getElementById("editTaskUser").value = task.user_id || "";
 
-    const title = document.getElementById("editTaskTitle").value;
-    const description = document.getElementById("editTaskDescription").value;
-    const deadline = document.getElementById("editTaskDeadline").value;
-    const user_id = parseInt(document.getElementById("editTaskUser").value);
-
-    const data = {
-        title,
-        description,
-        deadline,
-        user_id
-    };
-
-    try{
-
-        const response = await fetch(`${API}/tasks/${editingTaskId}`,{
-            method:"PATCH",
-            headers:{
-                "Content-Type":"application/json",
-                "Authorization":`Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        });
-
-        if(!response.ok) throw new Error();
-
-        closeEditModal();
-
-        if(currentFilter === 'all'){
-            loadAllTasks();
-        } else {
-            loadMyTasks();
-        }
-
-    }catch(e){
-        alert("Ошибка редактирования задачи");
-    }
+  document.getElementById("editTaskModal").style.display = "flex";
 }
 
-async function deleteTask(id){
+async function saveTaskEdit() {
+  const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem('token');
+  const data = {
+    title: document.getElementById("editTaskTitle").value,
+    description: document.getElementById("editTaskDescription").value,
+    deadline: document.getElementById("editTaskDeadline").value,
+    user_id: parseInt(document.getElementById("editTaskUser").value)
+  };
 
-    if(!confirm("Удалить задачу?")) return;
+  try {
+    await fetch(`${API}/tasks/${editingTaskId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
 
-    try{
+    closeEditModal();
+    loadTasks();
 
-        const response = await fetch(`${API}/tasks/${id}`,{
-            method:"DELETE",
-            headers:{
-                "Authorization":`Bearer ${token}`
-            }
-        });
-
-        if(!response.ok) throw new Error();
-
-        if(currentFilter === 'all') loadAllTasks();
-        else loadMyTasks();
-
-    }catch(e){
-        alert("Не удалось удалить задачу");
-    }
+  } catch (e) {
+    alert("Ошибка редактирования");
+  }
 }
 
+function closeEditModal() {
+  document.getElementById("editTaskModal").style.display = "none";
+}
 
+// ================= MODALS =================
 
-// ======================= INIT ===============================
-if (!teamId) {
-    alert("Ошибка: не указана команда");
-    window.location.href = "dashboard.html";
-} else {
-    loadTeamInfo();
-    loadAllTasks();
+function openModal() {
+  document.getElementById("taskModal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("taskModal").style.display = "none";
+}
+
+// ================= NAV =================
+
+function goBack() {
+  window.location.href = "dashboard.html";
 }
 
 
