@@ -17,3 +17,6 @@ class TeamMember(BaseModel):
     user_id: int
     team_id: int
     is_lead: bool = False
+
+class AddMemberByEmail(BaseModel):
+    email: str

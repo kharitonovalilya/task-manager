@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
-from app.schemas.team import TeamCreate, Team, TeamMember
+from app.schemas.team import TeamCreate, Team, TeamMember, AddMemberByEmail
 from app.schemas.task import Task  # добавлено
 from app.crud import team as team_crud
 from app.crud import task as task_crud
+from app.crud import user as user_crud
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/teams", tags=["Teams"])
@@ -34,11 +35,30 @@ def delete_team(team_id: int, current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Team not found")
     return
 
-@router.post("/{team_id}/members/{user_id}")
-def add_member(team_id: int, user_id: int, current_user: dict = Depends(get_current_user)):
-    success = team_crud.add_member_to_team(user_id, team_id)
+@router.post("/{team_id}/members/add-by-email")
+def add_member_by_email(
+        team_id: int,
+        payload: AddMemberByEmail,
+        current_user: dict = Depends(get_current_user)
+):
+    team = team_crud.get_team(team_id)
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+
+    if team["lead_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Only team lead can add members")
+
+    user = user_crud.get_user_by_email(payload.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if team_crud.is_member(user["id"], team_id):
+        raise HTTPException(status_code=400, detail="User already in team")
+
+    success = team_crud.add_member_to_team(user["id"], team_id)
     if not success:
-        raise HTTPException(status_code=400, detail="Could not add member")
+        raise HTTPException(status_code=500, detail="Database error")
+
     return {"message": "Member added"}
 
 @router.delete("/{team_id}/members/{user_id}")

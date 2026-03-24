@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import init_db
+from app.core.seeder import seed_test_users
 from app.api.v1 import router as v1_router
 
 # create app
@@ -8,6 +9,7 @@ app = FastAPI(title = "Task Manager API")
 
 # create tables if they are not exist
 init_db()
+seed_test_users();
 
 # allow front
 origins = [
