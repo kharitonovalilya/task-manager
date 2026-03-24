@@ -108,7 +108,7 @@ function renderTasks() {
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = "<p style='text-align:center;opacity:0.6'>Нет задач</p>";
+    container.innerHTML = "<p style='text-align:center;opacity:0.6'></p>";
     return;
   }
 
@@ -261,13 +261,17 @@ function handleEdit(id) {
   openEditModal(id);
 }
 
-function openEditModal(id) {
+async function openEditModal(id) {
   const task = tasks.find(t => t.id === id);
   editingTaskId = id;
+
+  await fillMembersSelects(); // Ждем загрузки списка участников
 
   document.getElementById("editTaskTitle").value = task.title;
   document.getElementById("editTaskDescription").value = task.description || "";
   document.getElementById("editTaskDeadline").value = task.deadline?.split("T")[0] || "";
+  
+  // Устанавливаем выбранного участника
   document.getElementById("editTaskUser").value = task.user_id || "";
 
   document.getElementById("editTaskModal").style.display = "flex";
@@ -308,6 +312,7 @@ function closeEditModal() {
 // ================= MODALS =================
 
 function openModal() {
+  fillMembersSelects(); // Загружаем список участников
   document.getElementById("taskModal").style.display = "flex";
 }
 
@@ -369,5 +374,29 @@ window.addMemberByEmail = async function() {
     alert("Критическая ошибка: проверьте соединение с сервером");
   }
 };
+
+// Функция для загрузки участников команды в выпадающие списки
+async function fillMembersSelects() {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API}/teams/${teamId}/members`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const members = await res.json();
+
+    const taskSelect = document.getElementById("taskUser");
+    const editSelect = document.getElementById("editTaskUser");
+
+    // Очищаем и добавляем дефолтный вариант
+    const optionsHtml = '<option value="">Выберите исполнителя</option>' + 
+      members.map(m => `<option value="${m.id}">${m.email}</option>`).join("");
+
+    taskSelect.innerHTML = optionsHtml;
+    editSelect.innerHTML = optionsHtml;
+  } catch (e) {
+    console.error("Ошибка при загрузке участников для списка:", e);
+  }
+}
+
 
 

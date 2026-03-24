@@ -82,7 +82,13 @@
     <input id="taskTitle" placeholder="Название задачи">
     <textarea id="taskDescription" placeholder="Описание задачи" rows="3"></textarea>
     <input id="taskDeadline" type="date">
-    <input id="taskUser" placeholder="ID исполнителя">
+    <select id="editTaskUser">
+  <option value="">Выберите исполнителя</option>
+</select>
+
+<select id="taskUser">
+  <option value="">Выберите исполнителя</option>
+</select>
     <div class="modal-buttons">
       <button onclick="createTask()">Создать</button>
       <button onclick="closeModal()">Отмена</button>
