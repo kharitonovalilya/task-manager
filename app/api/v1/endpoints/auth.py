@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from app.schemas.user import UserCreate, User, Token, LoginRequest
-from app.core.security import create_access_token
+from app.core.security import create_access_token, verify_password
 from app.core.config import settings
 from app.crud.user import get_user_by_email, create_user
 from app.api.deps import get_current_user
@@ -21,7 +21,7 @@ def register(user_data: UserCreate):
 @router.post("/login", response_model=Token)
 def login(login_data: LoginRequest):
     user = get_user_by_email(login_data.email)
-    if not user or user["password"] != login_data.password:
+    if not user or not verify_password(login_data.password, user["password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
