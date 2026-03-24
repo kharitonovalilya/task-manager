@@ -117,63 +117,87 @@ window.createTeam = async function () {
 
 function renderCalendar() {
   const grid = document.getElementById("calendarGrid");
-  const title = document.getElementById("monthTitle");
-  if (!grid || !title) return;
-
+  const monthTitle = document.getElementById("monthTitle");
+  
   grid.innerHTML = "";
+  
+  // Устанавливаем заголовок (Месяц Год)
+  monthTitle.innerText = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  title.innerText = `${monthNames[month]} ${year}`;
 
-  const firstDay = new Date(year, month, 1).getDay();
+  // Находим данные о текущей реальной дате (сегодня)
+  const now = new Date();
+  const todayDay = now.getDate();
+  const todayMonth = now.getMonth();
+  const todayYear = now.getFullYear();
+
+  // 1. Расчет отступов (пустые ячейки, если месяц начинается не с понедельника)
+  const firstDayOfMonth = new Date(year, month, 1).getDay(); 
+  // В JS 0 - это воскресенье, превращаем в 0 - понедельник ... 6 - воскресенье
+  const shift = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+  for (let i = 0; i < shift; i++) {
+    const emptyDiv = document.createElement("div");
+    emptyDiv.className = "calendar-day empty";
+    grid.appendChild(emptyDiv);
+  }
+
+  // 2. Рисуем дни месяца
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  // Шапка недели
-  ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].forEach(day => {
-    const div = document.createElement("div");
-    div.className = "calendar-weekday";
-    div.innerText = day;
-    grid.appendChild(div);
-  });
-
-  // Смещение начала месяца
-  let startShift = firstDay === 0 ? 6 : firstDay - 1;
-
-  for (let i = 0; i < startShift; i++) {
-    const div = document.createElement("div");
-    div.className = "calendar-day empty";
-    grid.appendChild(div);
-  }
-
-  // Отрисовка дней
   for (let d = 1; d <= daysInMonth; d++) {
-    const div = document.createElement("div");
-    div.className = "calendar-day";
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "calendar-day";
+    dayDiv.innerText = d;
+
+    // ПРОВЕРКА НА "СЕГОДНЯ"
+    if (d === todayDay && month === todayMonth && year === todayYear) {
+      dayDiv.classList.add("today");
+    }
+
+    // 3. Отображение задач для этого дня
+    // Формируем строку даты в формате YYYY-MM-DD для сравнения с дедлайном
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     
-    // Формат даты YYYY-MM-DD для сравнения
-    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    div.innerHTML = `<b>${d}</b>`;
+    // Ищем задачи, у которых deadline совпадает с этой датой
+    const dayTasks = tasks.filter(t => t.deadline && t.deadline.startsWith(dateStr));
 
-    // ФИЛЬТР: Только МОИ задачи (по дедлайну и ID пользователя)
-    const myDayTasks = tasks.filter(t => 
-      t.deadline && 
-      t.deadline.slice(0, 10) === dateStr &&
-      Number(t.user_id) === Number(currentUser?.id)
-    );
-
-    myDayTasks.forEach(task => {
-      const dot = document.createElement("div");
-      dot.className = "task-dot";
-      dot.setAttribute("data-done", task.completed);
-      dot.onclick = (e) => {
-        e.stopPropagation();
-        showTaskPopup(task);
+    dayTasks.forEach(task => {
+      const taskEl = document.createElement("div");
+      taskEl.className = "calendar-task-item";
+      if (task.completed) taskEl.classList.add("task-done");
+      
+      // Показываем кусочек названия задачи
+      taskEl.innerText = task.title;
+      
+      // Клик по задаче открывает подробности
+      taskEl.onclick = (e) => {
+        e.stopPropagation(); // чтобы не сработал клик по ячейке
+        showTaskDetails(task);
       };
-      div.appendChild(dot);
+      
+      dayDiv.appendChild(taskEl);
     });
 
-    grid.appendChild(div);
+    grid.appendChild(dayDiv);
   }
+}
+
+// Вспомогательная функция для показа деталей задачи в поп-апе
+function showTaskDetails(task) {
+  document.getElementById("popupTitle").innerText = task.title;
+  document.getElementById("popupDescription").innerText = task.description || "Нет описания";
+  
+  const status = task.completed ? "✅ Выполнено" : "⏳ В работе";
+  document.getElementById("popupInfo").innerText = `Статус: ${status}`;
+  
+  document.getElementById("taskPopup").style.display = "flex";
+}
+
+function closeTaskPopup() {
+  document.getElementById("taskPopup").style.display = "none";
 }
 
 // ======================= UI ФУНКЦИИ =======================

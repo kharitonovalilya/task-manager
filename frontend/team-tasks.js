@@ -4,6 +4,7 @@ const params = new URLSearchParams(window.location.search);
 const teamId = params.get("teamId");
 
 let tasks = [];
+let teamMembers = []; // Храним список участников команды
 let isLeader = false;
 let currentFilter = "all"; // all | done | not_done | my
 let currentUserId = null;
@@ -22,7 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function init() {
   await loadTeamInfo();
-  await loadTasks();
+  await loadMembers(); // Сначала загружаем участников
+  await loadTasks();   // Затем задачи (чтобы сопоставить ID и Email)
 }
 
 // ================= TEAM INFO =================
@@ -36,7 +38,6 @@ async function loadTeamInfo() {
     });
 
     const team = await teamRes.json();
-
     document.getElementById("teamTitle").innerText = team.name;
 
     const meRes = await fetch(`${API}/auth/me`, {
@@ -49,7 +50,6 @@ async function loadTeamInfo() {
     isLeader = Number(team.lead_id) === Number(me.id);
 
     updateLeaderUI();
-
   } catch (e) {
     console.error(e);
   }
@@ -64,9 +64,33 @@ function updateLeaderUI() {
     btn.classList.add("disabled-btn");
     if (addMemberBtn) addMemberBtn.style.display = "none";
   } else {
-    // Если лидер — показываем кнопку приглашения
     if (addMemberBtn) addMemberBtn.style.display = "inline-block";
   }
+}
+
+// ================= MEMBERS =================
+
+async function loadMembers() {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API}/teams/${teamId}/members`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    teamMembers = await res.json();
+  } catch (e) {
+    console.error("Ошибка загрузки участников:", e);
+  }
+}
+
+function fillMembersSelects() {
+  const taskSelect = document.getElementById("taskUser");
+  const editSelect = document.getElementById("editTaskUser");
+
+  const optionsHtml = '<option value="">Выберите исполнителя</option>' + 
+    teamMembers.map(m => `<option value="${m.id}">${m.email}</option>`).join("");
+
+  if (taskSelect) taskSelect.innerHTML = optionsHtml;
+  if (editSelect) editSelect.innerHTML = optionsHtml;
 }
 
 // ================= LOAD TASKS =================
@@ -81,7 +105,6 @@ async function loadTasks() {
 
     tasks = await res.json();
     renderTasks();
-
   } catch (e) {
     console.error(e);
   }
@@ -97,18 +120,14 @@ function renderTasks() {
 
   if (currentFilter === "done") {
     filtered = tasks.filter(t => t.completed);
-  }
-
-  if (currentFilter === "not_done") {
+  } else if (currentFilter === "not_done") {
     filtered = tasks.filter(t => !t.completed);
-  }
-
-  if (currentFilter === "my") {
+  } else if (currentFilter === "my") {
     filtered = tasks.filter(t => t.user_id === currentUserId);
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = "<p style='text-align:center;opacity:0.6'></p>";
+    container.innerHTML = "<p style='text-align:center;opacity:0.6'>Нет задач</p>";
     return;
   }
 
@@ -116,6 +135,10 @@ function renderTasks() {
     const div = document.createElement("div");
     div.className = "task-card";
     if (task.completed) div.classList.add("done");
+
+    // Ищем почту исполнителя по ID
+    const member = teamMembers.find(m => m.id === task.user_id);
+    const userEmail = member ? member.email : `Неизвестный (ID: ${task.user_id})`;
 
     div.innerHTML = `
       <div class="task-left">
@@ -129,7 +152,7 @@ function renderTasks() {
         <b>${task.title}</b><br>
         ${task.description || ""}<br>
         Дедлайн: ${task.deadline ? task.deadline.split("T")[0] : "-"}<br>
-        Исполнитель: ${task.user_id}
+        Исполнитель: ${userEmail}
       </div>
 
       <div class="task-right">
@@ -166,9 +189,8 @@ window.showMyTasks = function () {
 
 // ================= TASK ACTIONS =================
 
-async function toggleTask(id, button) {
+window.toggleTask = async function(id, button) {
   const token = localStorage.getItem("token");
-
   const completed = !button.classList.contains("completed");
 
   try {
@@ -182,27 +204,32 @@ async function toggleTask(id, button) {
     });
 
     loadTasks();
-
   } catch (e) {
     alert("Ошибка обновления");
   }
-}
+};
 
 // ================= CREATE =================
 
-async function createTask() {
+window.createTask = async function() {
   const token = localStorage.getItem("token");
+  
+  const userIdValue = document.getElementById("taskUser").value;
+  if (!userIdValue) {
+    alert("Пожалуйста, выберите исполнителя");
+    return;
+  }
 
   const data = {
     title: document.getElementById("taskTitle").value,
     description: document.getElementById("taskDescription").value,
-    deadline: document.getElementById("taskDeadline").value,
-    user_id: parseInt(document.getElementById("taskUser").value),
+    deadline: document.getElementById("taskDeadline").value || null,
+    user_id: parseInt(userIdValue),
     team_id: Number(teamId)
   };
 
   try {
-    await fetch(`${API}/tasks`, {
+    const res = await fetch(`${API}/tasks`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -211,39 +238,40 @@ async function createTask() {
       body: JSON.stringify(data)
     });
 
-    closeModal();
-    loadTasks();
-
+    if (res.ok) {
+      closeModal();
+      loadTasks();
+    } else {
+      const errorData = await res.json();
+      alert("Ошибка создания задачи: " + (errorData.detail || ""));
+    }
   } catch (e) {
-    alert("Ошибка создания задачи");
+    alert("Ошибка соединения с сервером");
   }
-}
+};
 
 // ================= DELETE =================
 
-function handleDelete(id) {
+window.handleDelete = function(id) {
   if (!isLeader) {
     alert("Только лидер может удалять задачи");
     return;
   }
-  deleteTask(id);
-}
+  if (confirm("Удалить задачу?")) {
+    deleteTask(id);
+  }
+};
 
 async function deleteTask(id) {
   const token = localStorage.getItem("token");
 
-  if (!confirm("Удалить задачу?")) return;
-
   try {
     await fetch(`${API}/tasks/${id}`, {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     });
 
     loadTasks();
-
   } catch (e) {
     alert("Ошибка удаления");
   }
@@ -253,42 +281,46 @@ async function deleteTask(id) {
 
 let editingTaskId = null;
 
-function handleEdit(id) {
+window.handleEdit = function(id) {
   if (!isLeader) {
     alert("Только лидер может редактировать задачи");
     return;
   }
   openEditModal(id);
-}
+};
 
-async function openEditModal(id) {
+window.openEditModal = function(id) {
   const task = tasks.find(t => t.id === id);
   editingTaskId = id;
 
-  await fillMembersSelects(); // Ждем загрузки списка участников
+  fillMembersSelects(); // Заполняем список участников
 
   document.getElementById("editTaskTitle").value = task.title;
   document.getElementById("editTaskDescription").value = task.description || "";
   document.getElementById("editTaskDeadline").value = task.deadline?.split("T")[0] || "";
-  
-  // Устанавливаем выбранного участника
   document.getElementById("editTaskUser").value = task.user_id || "";
 
   document.getElementById("editTaskModal").style.display = "flex";
-}
+};
 
-async function saveTaskEdit() {
+window.saveTaskEdit = async function() {
   const token = localStorage.getItem("token");
+  
+  const userIdValue = document.getElementById("editTaskUser").value;
+  if (!userIdValue) {
+    alert("Пожалуйста, выберите исполнителя");
+    return;
+  }
 
   const data = {
     title: document.getElementById("editTaskTitle").value,
     description: document.getElementById("editTaskDescription").value,
-    deadline: document.getElementById("editTaskDeadline").value,
-    user_id: parseInt(document.getElementById("editTaskUser").value)
+    deadline: document.getElementById("editTaskDeadline").value || null,
+    user_id: parseInt(userIdValue)
   };
 
   try {
-    await fetch(`${API}/tasks/${editingTaskId}`, {
+    const res = await fetch(`${API}/tasks/${editingTaskId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -297,45 +329,49 @@ async function saveTaskEdit() {
       body: JSON.stringify(data)
     });
 
-    closeEditModal();
-    loadTasks();
-
+    if (res.ok) {
+      closeEditModal();
+      loadTasks();
+    } else {
+      const errorData = await res.json();
+      alert("Ошибка редактирования: " + (errorData.detail || ""));
+    }
   } catch (e) {
-    alert("Ошибка редактирования");
+    alert("Ошибка соединения с сервером");
   }
-}
+};
 
-function closeEditModal() {
+window.closeEditModal = function() {
   document.getElementById("editTaskModal").style.display = "none";
-}
+};
 
 // ================= MODALS =================
 
-function openModal() {
-  fillMembersSelects(); // Загружаем список участников
+window.openModal = function() {
+  fillMembersSelects(); // Заполняем список участников
   document.getElementById("taskModal").style.display = "flex";
-}
+};
 
-function closeModal() {
+window.closeModal = function() {
   document.getElementById("taskModal").style.display = "none";
-}
+};
 
 // ================= NAV =================
 
-function goBack() {
+window.goBack = function() {
   window.location.href = "dashboard.html";
-}
+};
 
 // ================= MEMBER ACTIONS =================
 
 window.openMemberModal = function() {
   document.getElementById("memberModal").style.display = "flex";
-}
+};
 
 window.closeMemberModal = function() {
   document.getElementById("memberModal").style.display = "none";
   document.getElementById("memberEmail").value = "";
-}
+};
 
 window.addMemberByEmail = async function() {
   const token = localStorage.getItem("token");
@@ -362,11 +398,10 @@ window.addMemberByEmail = async function() {
     if (res.ok) {
       alert("Пользователь успешно добавлен в команду!");
       closeMemberModal();
-      // Опционально: обновить список участников на странице, если он есть
+      await loadMembers(); // Подгружаем нового участника
+      renderTasks();       // Обновляем интерфейс
     } else {
-      // Если бэкенд вернул 404 (не найден) или 403, выводим конкретный detail
       alert("Ошибка: " + (result.detail || "Не удалось добавить пользователя"));
-      // Если почта не найдена, можно сразу очистить поле для удобства
       if (res.status === 404) emailInput.value = "";
     }
   } catch (e) {
@@ -374,29 +409,6 @@ window.addMemberByEmail = async function() {
     alert("Критическая ошибка: проверьте соединение с сервером");
   }
 };
-
-// Функция для загрузки участников команды в выпадающие списки
-async function fillMembersSelects() {
-  const token = localStorage.getItem("token");
-  try {
-    const res = await fetch(`${API}/teams/${teamId}/members`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const members = await res.json();
-
-    const taskSelect = document.getElementById("taskUser");
-    const editSelect = document.getElementById("editTaskUser");
-
-    // Очищаем и добавляем дефолтный вариант
-    const optionsHtml = '<option value="">Выберите исполнителя</option>' + 
-      members.map(m => `<option value="${m.id}">${m.email}</option>`).join("");
-
-    taskSelect.innerHTML = optionsHtml;
-    editSelect.innerHTML = optionsHtml;
-  } catch (e) {
-    console.error("Ошибка при загрузке участников для списка:", e);
-  }
-}
 
 
 

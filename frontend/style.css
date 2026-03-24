@@ -739,3 +739,25 @@ body{
   opacity:0.5;
   cursor:not-allowed;
 }
+
+/* Стиль для сегодняшнего дня */
+/* Стиль для ячейки сегодняшнего дня */
+.calendar-day.today {
+  background-color: #cfa8db; /* Светло-голубой фон */
+  border: 2px solid #007bff; /* Синяя рамка */
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* Маленькая точка под числом для красоты (опционально) */
+.calendar-day.today::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: #2196f3;
+  border-radius: 50%;
+}
