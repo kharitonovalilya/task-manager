@@ -2,6 +2,7 @@ from psycopg2.extras import RealDictCursor
 from app.core.database import get_connection
 from app.schemas.task import TaskCreate, TaskUpdate
 from typing import Optional, List
+from app.crud.team import is_team_lead
 
 
 def get_tasks():
@@ -59,10 +60,12 @@ def get_tasks_filtered(
     return tasks
 
 
-def create_task(task: TaskCreate):
+def create_task(task: TaskCreate, current_user_id: int):
     conn = get_connection()
     if not conn:
         return None
+    if not is_team_lead(current_user_id, task.team_id):
+        raise PermissionError("Only team lead can create tasks")
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
         """
@@ -89,11 +92,20 @@ def get_task(task_id: int):
     conn.close()
     return task
 
-def update_task(task_id: int, task_update: TaskUpdate):
+def update_task(task_id: int, task_update: TaskUpdate, current_user_id: int):
     conn = get_connection()
     if not conn:
         return None
     cur = conn.cursor(cursor_factory=RealDictCursor)
+
+     # Сначала получаем задачу, чтобы узнать team_id
+    task = get_task(task_id)
+    if not task:
+        return None
+    
+    # Проверка прав: только тимлид
+    if not is_team_lead(current_user_id, task['team_id']):
+        raise PermissionError("Only team lead can edit tasks")
 
     fields = []
     values = []
@@ -114,10 +126,20 @@ def update_task(task_id: int, task_update: TaskUpdate):
     conn.close()
     return updated
 
-def delete_task(task_id: int):
+def delete_task(task_id: int, current_user_id: int) -> bool:
     conn = get_connection()
     if not conn:
         return False
+    
+    # Получаем задачу для проверки team_id
+    task = get_task(task_id)
+    if not task:
+        return False
+    
+    # Проверка прав: только тимлид
+    if not is_team_lead(current_user_id, task['team_id']):
+        raise PermissionError("Only team lead can delete tasks")
+
     cur = conn.cursor()
     cur.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
     deleted = cur.rowcount > 0
@@ -125,6 +147,40 @@ def delete_task(task_id: int):
     cur.close()
     conn.close()
     return deleted
+
+def toggle_task_complete(task_id: int) -> Optional[dict]:
+    """
+    Переключает статус выполнения задачи.
+    Если была completed=True, становится False, и наоборот.
+    """
+    conn = get_connection()
+    if not conn:
+        return None
+    
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Сначала получаем текущий статус
+    cur.execute("SELECT completed FROM tasks WHERE id = %s", (task_id,))
+    task = cur.fetchone()
+    
+    if not task:
+        cur.close()
+        conn.close()
+        return None
+    
+    # Переключаем статус
+    new_status = not task["completed"]
+    
+    # Обновляем
+    cur.execute(
+        "UPDATE tasks SET completed = %s WHERE id = %s RETURNING *",
+        (new_status, task_id)
+    )
+    updated = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return updated
 
 def get_tasks_by_user(user_id: int):
     conn = get_connection()
