@@ -300,14 +300,17 @@ body{
 }
 
 /* пустые клетки */
-.calendar-day.empty{
-  background: transparent;
-}
-
-/* hover */
-.calendar-day:hover{
+.calendar-day:not(.empty):hover {
   background: rgba(255,255,255,0.35);
 }
+
+.calendar-day.empty {
+  background: transparent;
+  pointer-events: none; /* Мышь будет "пролетать" сквозь них, hover не сработает */
+  cursor: default;
+}
+
+
 
 .calendar-header{
   display:flex;
