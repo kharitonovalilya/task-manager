@@ -5,6 +5,7 @@
   <title>Team Tasks</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <div class="back-button" onclick="goBack()">
@@ -26,6 +27,21 @@
   <button id="createTaskBtn" class="create-btn" onclick="openModal()">
     + Создать задачу
   </button>
+  <button id="addMemberBtn" class="create-btn" style="background-color: #28a745; display: none;" onclick="openMemberModal()">
+  + Пригласить участника
+</button>
+
+<div id="memberModal" class="modal">
+  <div class="modal-content">
+    <h2>Пригласить в команду</h2>
+    <p>Введите почту пользователя, чтобы добавить его в проект</p>
+    <input id="memberEmail" type="email" placeholder="example@mail.com">
+    <div class="modal-buttons">
+      <button onclick="addMemberByEmail()">Добавить</button>
+      <button onclick="closeMemberModal()">Отмена</button>
+    </div>
+  </div>
+</div>
 
   <div id="tasksContainer"></div>
 
@@ -73,6 +89,8 @@
     </div>
   </div>
 </div>
+
+
 
 <script src="team-tasks.js"></script>
 </body>

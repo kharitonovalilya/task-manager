@@ -57,10 +57,15 @@ async function loadTeamInfo() {
 
 function updateLeaderUI() {
   const btn = document.getElementById("createTaskBtn");
+  const addMemberBtn = document.getElementById("addMemberBtn");
 
   if (!isLeader) {
     btn.disabled = true;
     btn.classList.add("disabled-btn");
+    if (addMemberBtn) addMemberBtn.style.display = "none";
+  } else {
+    // Если лидер — показываем кнопку приглашения
+    if (addMemberBtn) addMemberBtn.style.display = "inline-block";
   }
 }
 
@@ -315,5 +320,54 @@ function closeModal() {
 function goBack() {
   window.location.href = "dashboard.html";
 }
+
+// ================= MEMBER ACTIONS =================
+
+window.openMemberModal = function() {
+  document.getElementById("memberModal").style.display = "flex";
+}
+
+window.closeMemberModal = function() {
+  document.getElementById("memberModal").style.display = "none";
+  document.getElementById("memberEmail").value = "";
+}
+
+window.addMemberByEmail = async function() {
+  const token = localStorage.getItem("token");
+  const emailInput = document.getElementById("memberEmail");
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    alert("Введите email");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/teams/${teamId}/members/add-by-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ email: email })
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      alert("Пользователь успешно добавлен в команду!");
+      closeMemberModal();
+      // Опционально: обновить список участников на странице, если он есть
+    } else {
+      // Если бэкенд вернул 404 (не найден) или 403, выводим конкретный detail
+      alert("Ошибка: " + (result.detail || "Не удалось добавить пользователя"));
+      // Если почта не найдена, можно сразу очистить поле для удобства
+      if (res.status === 404) emailInput.value = "";
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Критическая ошибка: проверьте соединение с сервером");
+  }
+};
 
 
