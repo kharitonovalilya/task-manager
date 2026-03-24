@@ -44,6 +44,21 @@ def get_team(team_id: int):
     conn.close()
     return team
 
+def get_teams_by_user(user_id: int):
+    conn = get_connection()
+    if not conn:
+        return []
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        SELECT t.* FROM teams t
+        JOIN team_members tm ON t.id = tm.team_id
+        WHERE tm.user_id = %s
+    """, (user_id,))
+    teams = cur.fetchall()
+    cur.close()
+    conn.close()
+    return teams
+
 def get_team_lead_id(lead_id: int):
     conn = get_connection()
     if not conn:

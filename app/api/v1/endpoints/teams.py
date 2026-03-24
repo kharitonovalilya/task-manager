@@ -10,7 +10,7 @@ router = APIRouter(prefix="/teams", tags=["Teams"])
 
 @router.get("/", response_model=List[Team])
 def list_teams(current_user: dict = Depends(get_current_user)):
-    teams = team_crud.get_teams()
+    teams = team_crud.get_teams_by_user(current_user["id"])
     return [Team(**t) for t in teams]
 
 @router.post("/", response_model=Team, status_code=201)

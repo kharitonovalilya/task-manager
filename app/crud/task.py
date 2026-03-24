@@ -92,6 +92,37 @@ def get_task(task_id: int):
     conn.close()
     return task
 
+def get_tasks_for_user(current_user_id: int, team_id: Optional[int] = None, user_id: Optional[int] = None, completed: Optional[bool] = None):
+    conn = get_connection()
+    if not conn:
+        return []
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    query = """
+        SELECT t.* FROM tasks t
+        WHERE (
+            t.user_id = %s 
+            OR t.team_id IN (
+                SELECT team_id FROM team_members WHERE user_id = %s
+            )
+        )
+    """
+    params = [current_user_id, current_user_id]
+    if team_id is not None:
+        query += " AND t.team_id = %s"
+        params.append(team_id)
+    if user_id is not None:
+        query += " AND t.user_id = %s"
+        params.append(user_id)
+    if completed is not None:
+        query += " AND t.completed = %s"
+        params.append(completed)
+    query += " ORDER BY t.id"
+    cur.execute(query, params)
+    tasks = cur.fetchall()
+    cur.close()
+    conn.close()
+    return tasks
+
 def update_task(task_id: int, task_update: TaskUpdate, current_user_id: int):
     conn = get_connection()
     if not conn:

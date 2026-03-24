@@ -14,15 +14,11 @@ def list_tasks(
     completed: Optional[bool] = None,
     current_user: dict = Depends(get_current_user)
 ):
-    """
-    Получить список задач с фильтрацией.
-    Доступны только задачи, где пользователь является исполнителем или участником команды.
-    """
-    tasks = task_crud.get_tasks_filtered(
-        user_id=user_id,
+    tasks = task_crud.get_tasks_for_user(
+        current_user_id=current_user["id"],
         team_id=team_id,
-        completed=completed,
-        current_user_id=current_user["id"]
+        user_id=user_id,
+        completed=completed
     )
     return [Task(**t) for t in tasks]
 
