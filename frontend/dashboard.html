@@ -4,23 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="dashboard-page">
   <div class="dashboard">
+
+    <!-- ================== TEAMS ================== -->
     <div class="teams-panel">
       <h2>Мои команды</h2>
+
       <div id="teamsList"></div>
+
       <button class="create-team-btn" onclick="openCreateTeam()">
         + Создать команду
       </button>
 
+      <!-- MODAL CREATE TEAM -->
       <div id="teamModal" class="modal">
         <div class="modal-content">
           <h3>Создать команду</h3>
+
           <input id="teamNameInput" placeholder="Название команды" />
+
           <div class="modal-buttons">
             <button onclick="closeTeamModal()">Отмена</button>
             <button onclick="createTeam()">Создать</button>
@@ -29,17 +37,41 @@
       </div>
     </div>
 
+    <!-- ================== CALENDAR ================== -->
     <div class="calendar-panel">
+
       <div class="calendar-header">
         <button onclick="prevMonth()">←</button>
+
         <h2 id="monthTitle"></h2>
+
         <button onclick="nextMonth()">→</button>
       </div>
+
       <div id="calendarGrid" class="calendar-grid"></div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ================== TASK POPUP ================== -->
+<div id="taskPopup" class="modal">
+  <div class="modal-content">
+    <h3 id="popupTitle"></h3>
+
+    <p id="popupDescription"></p>
+
+    <p id="popupInfo"></p>
+
+    <div class="modal-buttons">
+      <button onclick="closeTaskPopup()">Закрыть</button>
     </div>
   </div>
 </div>
 
+<!-- JS -->
 <script src="dashboard.js"></script>
+
 </body>
 </html>

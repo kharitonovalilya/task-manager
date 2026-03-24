@@ -109,6 +109,9 @@ async function loadMyTasks() {
         console.error(error);
         alert("Не удалось загрузить мои задачи");
     }
+    tasks = await response.json();
+    renderTasks(tasks);
+    renderCalendar(); // 👈 ДОБАВИТЬ
 }
 
 function showMyTasks() {
