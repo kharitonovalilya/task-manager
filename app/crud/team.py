@@ -19,8 +19,8 @@ def create_team(team: TeamCreate, lead_id: int):
         return None
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
-        "INSERT INTO teams (name, lead_id) VALUES (%(name)s, %(lead_id)s) RETURNING *",
-        {"name": team.name, "lead_id": lead_id}
+        "INSERT INTO teams (name, lead_id) VALUES (%s, %s) RETURNING *",
+        (team.name, lead_id)
     )
     new_team = cur.fetchone()
     team_id = new_team["id"]

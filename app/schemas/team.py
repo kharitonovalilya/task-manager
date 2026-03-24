@@ -4,8 +4,8 @@ class TeamBase(BaseModel):
     name: str
     lead_id: int
 
-class TeamCreate(TeamBase):
-    pass
+class TeamCreate(BaseModel):
+    name: str
 
 class Team(TeamBase):
     id: int
