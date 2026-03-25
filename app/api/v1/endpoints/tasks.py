@@ -24,14 +24,12 @@ def list_tasks(
 
 @router.post("/", response_model=Task, status_code=201)
 def create_task(task: TaskCreate, current_user: dict = Depends(get_current_user)):
-    # Проверим, является ли текущий пользователь лидом команды, в которой создаётся задача
     team = team_crud.get_team(task.team_id)
     if not team or team["lead_id"] != current_user["id"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only team lead can assign tasks to other members"
         )
-    # Дополнительно можно проверить, что task.user_id действительно участник команды
     members = team_crud.get_team_members(task.team_id)
     if not any(m["id"] == task.user_id for m in members):
         raise HTTPException(
@@ -48,7 +46,6 @@ def get_task(task_id: int, current_user: dict = Depends(get_current_user)):
     task = task_crud.get_task(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    # Проверка доступа: задача должна принадлежать пользователю или его команде
     if task["user_id"] != current_user["id"]:
         team = team_crud.get_team(task["team_id"])
         if not team or not team_crud.is_member(current_user["id"], task["team_id"]):
@@ -56,15 +53,34 @@ def get_task(task_id: int, current_user: dict = Depends(get_current_user)):
     return Task(**task)
 
 @router.patch("/{task_id}", response_model=Task)
-def update_task(task_id: int, task_update: TaskUpdate, current_user: dict = Depends(get_current_user)):
+def update_task(
+    task_id: int,
+    task_update: TaskUpdate,
+    current_user: dict = Depends(get_current_user)
+):
     task = task_crud.get_task(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    # Разрешено: только лид команды
+
     team = team_crud.get_team(task["team_id"])
-    if not team or team["lead_id"] != current_user["id"]:
-        raise HTTPException(status_code=403, detail="Not allowed to update this task")
-    updated = task_crud.update_task(task_id, task_update, current_user["id"])
+    is_lead = team and team["lead_id"] == current_user["id"]
+    is_assignee = task["user_id"] == current_user["id"]
+
+    update_data = task_update.model_dump(exclude_unset=True)
+    only_completed = set(update_data.keys()) == {"completed"}
+
+    if not is_lead:
+        if not only_completed:
+            raise HTTPException(
+                status_code=403,
+                detail="Only team lead can edit task details (title, description, deadline, user_id)"
+            )
+        if not is_assignee:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the assignee or team lead can change completion status"
+            )
+    updated = task_crud.update_task(task_id, task_update)
     if not updated:
         raise HTTPException(status_code=500, detail="Update failed")
     return Task(**updated)
@@ -74,11 +90,6 @@ def toggle_task_complete(
     task_id: int,
     current_user: dict = Depends(get_current_user)
 ):
-    """
-    Переключить статус выполнения задачи.
-    Могут: тимлид команды ИЛИ исполнитель задачи.
-    Если задача была выполнена - становится невыполненной, и наоборот.
-    """
     task = task_crud.get_task(task_id)
     if not task:
         raise HTTPException(
@@ -95,8 +106,7 @@ def toggle_task_complete(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only team lead or task assignee can change task status"
         )
-    
-    # Переключаем статус
+
     updated_task = task_crud.toggle_task_complete(task_id)
     if not updated_task:
         raise HTTPException(
@@ -111,7 +121,6 @@ def delete_task(task_id: int, current_user: dict = Depends(get_current_user)):
     task = task_crud.get_task(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    # Удалять задачу может только лид команды
     team = team_crud.get_team(task["team_id"])
     if not team or team["lead_id"] != current_user["id"]:
         raise HTTPException(status_code=403, detail="Only team lead can delete tasks")

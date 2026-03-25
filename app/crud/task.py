@@ -67,26 +67,22 @@ def get_tasks_for_user(current_user_id: int, team_id: int | None = None, user_id
     conn.close()
     return tasks
 
-def update_task(task_id: int, task_update: TaskUpdate, current_user_id: int):
+def update_task(task_id: int, task_update: TaskUpdate):
     conn = get_connection()
     if not conn:
         return None
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    task = get_task(task_id)
-    if not task:
-        return None
-    if not is_team_lead(current_user_id, task['team_id']):
-        raise PermissionError("Only team lead can edit tasks")
+
+    update_data = task_update.model_dump(exclude_unset=True)
+    if not update_data:
+        cur.execute("SELECT * FROM tasks WHERE id = %s", (task_id,))
+        return cur.fetchone()
 
     fields = []
     values = []
-    for field, value in task_update.model_dump(exclude_unset=True).items():
+    for field, value in update_data.items():
         fields.append(f"{field} = %s")
         values.append(value)
-
-    if not fields:
-        cur.execute("SELECT * FROM tasks WHERE id = %s", (task_id,))
-        return cur.fetchone()
 
     values.append(task_id)
     query = f"UPDATE tasks SET {', '.join(fields)} WHERE id = %s RETURNING *"
