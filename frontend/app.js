@@ -1,6 +1,5 @@
 const API = "http://localhost:8000/api/v1";
 
-// LOGIN
 async function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -19,10 +18,7 @@ async function login() {
             return;
         }
 
-        // Сохраняем токен
         localStorage.setItem("token", data.access_token);
-
-        // Переходим на дэшборд
         window.location.href = "dashboard.html";
 
     } catch (err) {
@@ -31,36 +27,15 @@ async function login() {
     }
 }
 
-//async function loadTasks() {
-//
-//  const response = await fetch(API + "/tasks", {
-//        headers: {
-//            "Authorization": "Bearer " + localStorage.getItem("token")
-//        }
-//    });
-//
-//    const tasks = await response.json();
-//
-//    const list = document.getElementById("taskList");
-//    list.innerHTML = "";
-//
-//    tasks.forEach(task => {
-//        const li = document.createElement("li");
-//        li.textContent = task.title;
-//        list.appendChild(li);
-//    });
-//}
 
 function register() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const passwordConfirm = document.getElementById("passwordConfirm").value;
-  // Проверяем, что пароли совпадают
   if (password !== passwordConfirm) {
     alert("Пароли не совпадают!");
     return;
   }
-  // Отправка на backend
   fetch(API + "/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
