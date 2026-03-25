@@ -847,3 +847,86 @@ body{
 .team-title-card, .tabs, .create-btn {
   flex-shrink: 0; /* Не дает элементам сжиматься */
 }
+
+/* Эффект наведения для всех кнопок в ряду управления */
+.action-buttons .create-btn:hover:not(:disabled) {
+  background-color: #ff8c2f !important; /* Светло-оранжевый при наведении */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Плавный переход для всех кнопок */
+.create-btn {
+  transition: 0.3s background-color, 0.3s transform, 0.3s box-shadow;
+}
+
+/* Скрываем кнопки действий на карточках задач по умолчанию для не-лидеров */
+.task-right {
+  display: none; /* Будем включать через JS только лидеру */
+}
+
+/* Если нужно оставить контейнер, но скрыть кнопки внутри */
+.is-leader .task-right {
+  display: flex !important;
+}
+
+/* Унифицируем hover для всех кнопок управления */
+#createTaskBtn:hover, 
+#addMemberBtn:hover, 
+#viewMembersBtn:hover {
+  background-color: #ff8c2f !important; /* Оранжевый как у главной кнопки */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  transition: 0.3s all ease;
+}
+
+/* Настройка для галочки-статуса */
+.done-btn:not(:disabled):hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.done-btn.completed:not(:disabled):hover {
+  background-color: #45a049; /* Чуть темнее зеленого при наведении */
+}
+
+/* Подсветка задач текущего пользователя */
+.task-card b {
+  color: #333;
+}
+
+/* Если задача моя - добавим легкий акцент на границе */
+.task-card:has(b:contains("(Вы)")) {
+  border-left: 5px solid #ff7a18;
+}
+
+/* Унифицируем поведение всех кнопок в панели действий */
+.action-buttons .create-btn {
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.action-buttons .create-btn:hover:not(:disabled) {
+  background-color: #ff8c2f !important; /* Тот же оранжевый, что у основной кнопки */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Стили для галочки, чтобы было понятно, что на неё можно нажать */
+.done-btn:not(:disabled):hover {
+  filter: brightness(1.1);
+  transform: scale(1.1);
+}
+
+.done-btn:disabled {
+  filter: grayscale(1);
+  cursor: not-allowed;
+}
+
+/* Разрешаем клики для кнопок, которые мы активировали через JS */
+.done-btn:not([disabled]) {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+}
+
+

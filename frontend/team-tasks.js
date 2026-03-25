@@ -53,8 +53,8 @@ async function loadTeamInfo() {
 
     const me = await meRes.json();
 
-    currentUserId = me.id;
-    isLeader = Number(team.lead_id) === Number(me.id);
+    currentUserId = Number(me.id); // Принудительно в число
+    isLeader = Number(team.lead_id) === currentUserId;
 
     updateLeaderUI();
   } catch (e) {
@@ -63,15 +63,24 @@ async function loadTeamInfo() {
 }
 
 function updateLeaderUI() {
-  const btn = document.getElementById("createTaskBtn");
+  const createTaskBtn = document.getElementById("createTaskBtn");
   const addMemberBtn = document.getElementById("addMemberBtn");
+  const container = document.querySelector(".team-page");
 
   if (!isLeader) {
-    btn.disabled = true;
-    btn.classList.add("disabled-btn");
+    // Скрываем кнопки управления полностью для обычного участника
+    if (createTaskBtn) createTaskBtn.style.display = "none";
     if (addMemberBtn) addMemberBtn.style.display = "none";
+    
+    // Удаляем класс лидера, если он был
+    container.classList.remove("is-leader");
   } else {
+    // Показываем кнопки для лидера
+    if (createTaskBtn) createTaskBtn.style.display = "inline-block";
     if (addMemberBtn) addMemberBtn.style.display = "inline-block";
+    
+    // Добавляем класс лидера для управления CSS (кнопки задач)
+    container.classList.add("is-leader");
   }
 }
 
@@ -118,55 +127,65 @@ async function loadTasks() {
 }
 
 // ================= RENDER =================
-
 function renderTasks() {
   const container = document.getElementById("tasksContainer");
+  if (!container) return;
+
   container.innerHTML = "";
-  container.scrollTop = 0;
-
-  let filtered = tasks;
-
-  if (currentFilter === "done") {
-    filtered = tasks.filter(t => t.completed);
-  } else if (currentFilter === "not_done") {
-    filtered = tasks.filter(t => !t.completed);
-  } else if (currentFilter === "my") {
-    filtered = tasks.filter(t => t.user_id === currentUserId);
-  }
+  
+  // Фильтрация
+  const filtered = tasks.filter(task => {
+    if (currentFilter === "done") return task.completed;
+    if (currentFilter === "not_done") return !task.completed;
+    if (currentFilter === "my") return Number(task.user_id) === Number(currentUserId);
+    return true;
+  });
 
   if (filtered.length === 0) {
-    container.innerHTML = "<p style='text-align:center;opacity:0.6'></p>";
+    container.innerHTML = "<p style='text-align:center;opacity:0.6'>Задач пока нет</p>";
     return;
   }
 
   filtered.forEach(task => {
     const div = document.createElement("div");
     div.className = "task-card";
-    if (task.completed) div.classList.add("done");
+    
+    // ПРОВЕРКА ПРАВ (принудительно к числам)
+    const taskOwnerId = Number(task.user_id);
+    const myId = Number(currentUserId);
+    const isAssignee = taskOwnerId === myId;
+    const canToggle = isLeader || isAssignee;
 
-    // Ищем почту исполнителя по ID
-    const member = teamMembers.find(m => m.id === task.user_id);
-    const userEmail = member ? member.email : `Неизвестный (ID: ${task.user_id})`;
+    if (task.completed) div.classList.add("done");
+    if (isAssignee) div.classList.add("my-task");
+
+    const member = teamMembers.find(m => Number(m.id) === taskOwnerId);
+    const userEmail = member ? member.email : `ID: ${task.user_id}`;
 
     div.innerHTML = `
       <div class="task-left">
-        <button onclick="toggleTask(${task.id}, this)" 
-          class="done-btn ${task.completed ? "completed" : ""}">
+        <button 
+          class="done-btn ${task.completed ? "completed" : ""}"
+          ${canToggle ? `onclick="toggleTask(${task.id}, this)"` : "disabled"} 
+          style="${canToggle ? 'cursor: pointer; opacity: 1;' : 'cursor: not-allowed; opacity: 0.3;'}"
+        >
           ✔
         </button>
       </div>
 
       <div class="task-content">
         <b>${task.title}</b><br>
-        ${task.description || ""}<br>
-        Дедлайн: ${task.deadline ? task.deadline.split("T")[0] : "-"}<br>
-        Исполнитель: ${userEmail}
+        <span style="font-size: 0.9em; opacity: 0.8;">${task.description || ""}</span><br>
+        <small>Дедлайн: ${task.deadline ? task.deadline.split("T")[0] : "-"}</small><br>
+        <small>Исполнитель: ${userEmail} ${isAssignee ? "<b style='color: #ff7a18;'>(Вы)</b>" : ""}</small>
       </div>
 
-      <div class="task-right">
+      ${isLeader ? `
+      <div class="task-right" style="display: flex !important;">
         <button onclick="handleEdit(${task.id})">✏️</button>
         <button onclick="handleDelete(${task.id})">🗑</button>
       </div>
+      ` : ''}
     `;
 
     container.appendChild(div);
@@ -199,19 +218,22 @@ window.showMyTasks = function () {
 
 window.toggleTask = async function(id, button) {
   const token = localStorage.getItem("token");
-  const completed = !button.classList.contains("completed");
-
+  // Нам больше не нужно отправлять body с completed, 
+  // так как бэкенд сам переключает статус (toggle)
+  
   try {
-    await fetch(`${API}/tasks/${id}`, {
+    const res = await fetch(`${API}/tasks/${id}/toggle-complete`, { // ДОБАВИЛИ /toggle-complete
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ completed })
+      }
     });
 
-    loadTasks();
+    if (res.ok) {
+      loadTasks();
+    } else if (res.status === 403) {
+      alert("Ошибка доступа: вы не лидер и не исполнитель этой задачи");
+    }
   } catch (e) {
     alert("Ошибка обновления");
   }
