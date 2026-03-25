@@ -438,7 +438,7 @@ function renderMembersList() {
     row.style.display = "flex";
     row.style.justifyContent = "space-between";
     row.style.alignItems = "center";
-    row.style.padding = "10px 0";
+    row.style.padding = "5px 0";
     row.style.borderBottom = "1px solid rgba(0,0,0,0.1)";
 
     const emailSpan = document.createElement("span");

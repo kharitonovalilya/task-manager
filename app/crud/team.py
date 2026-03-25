@@ -2,17 +2,6 @@ from psycopg2.extras import RealDictCursor
 from app.core.database import get_connection
 from app.schemas.team import TeamCreate
 
-def get_teams():
-    conn = get_connection()
-    if not conn:
-        return []
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM teams ORDER BY id")
-    teams = cur.fetchall()
-    cur.close()
-    conn.close()
-    return teams
-
 def create_team(team: TeamCreate, lead_id: int):
     conn = get_connection()
     if not conn:
@@ -153,18 +142,3 @@ def is_member(user_id: int, team_id: int) -> bool:
     cur.close()
     conn.close()
     return exists
-
-def remove_member_from_team(user_id: int, team_id: int):
-    conn = get_connection()
-    if not conn:
-        return False
-    cur = conn.cursor()
-    cur.execute(
-        "DELETE FROM team_members WHERE user_id = %s AND team_id = %s",
-        (user_id, team_id)
-    )
-    deleted = cur.rowcount > 0
-    conn.commit()
-    cur.close()
-    conn.close()
-    return deleted

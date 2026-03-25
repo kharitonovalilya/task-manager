@@ -254,12 +254,10 @@ body{
 }
 
 /* Hover команды */
-.team-card:hover{
-
-  transform:translateY(-3px);
-
-  box-shadow:0 10px 25px rgba(0,0,0,0.25);
-
+.team-card:hover {
+  background: rgba(255,255,255,0.35);
+  /* transform: translateY(-3px); */  /* удалено */
+  /* box-shadow: 0 10px 25px rgba(0,0,0,0.25); */ /* удалено */
 }
 
 /* Календарь */
@@ -801,11 +799,23 @@ body{
 
 #membersListContainer div:last-child {
   border-bottom: none;
+
 }
 
 #membersListContainer span {
   font-size: 14px;
   color: #333;
+  margin: 0;
+}
+#membersListModal .modal-content {
+  gap: 0;
+}
+
+#membersListContainer {
+  margin-top: 0 !important;
+  margin-bottom: 15px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 /* Основной контейнер страницы команды */
@@ -953,4 +963,49 @@ body{
   background: #f8f8f8;           /* лёгкое затемнение при наведении */
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
   transform: scale(1.02);
+}
+
+.team-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: default; /* не мешаем клику на кнопке */
+}
+
+.team-card span {
+  flex: 1;
+  cursor: pointer;
+}
+
+.delete-team-btn {
+  background: none !important;
+  border: none !important;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #aaa;
+  padding: 5px;
+  margin-left: 8px;
+  border-radius: 0 !important;
+  transition: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.delete-team-btn:hover {
+  background: none !important;
+  transform: none !important;
+  color: #aaa !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.delete-team-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
 }

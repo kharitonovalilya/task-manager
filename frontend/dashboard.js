@@ -76,6 +76,33 @@ async function fetchTasksForTeam(teamId = null) {
   }
 }
 
+async function deleteTeam(teamId) {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const confirmed = confirm("Вы уверены, что хотите удалить команду? Все задачи и участники будут удалены.");
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`${API}/teams/${teamId}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      // Удаляем команду из локального массива
+      teams = teams.filter(t => t.id !== teamId);
+      renderTeams();          // обновляем список
+      populateTeamSelect();   // обновляем селект выбора команды в календаре
+    } else {
+      const err = await res.json();
+      alert("Ошибка удаления: " + (err.detail || "Недостаточно прав"));
+    }
+  } catch (err) {
+    alert("Ошибка соединения с сервером");
+  }
+}
+
 function populateTeamSelect() {
   const select = document.getElementById("teamSelect");
   if (!select) return;
@@ -207,13 +234,32 @@ function renderTeams() {
   }
 
   teams.forEach(team => {
-    const div = document.createElement("div");
-    div.className = "team-card";
-    div.textContent = team.name;
-    div.onclick = () => {
-      window.location.href = `team-tasks.html?teamId=${team.id}`;
-    };
-    container.appendChild(div);
+    const card = document.createElement("div");
+    card.className = "team-card";
+
+    // Имя команды (кликабельно для перехода)
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = team.name;
+    nameSpan.style.cursor = "pointer";
+    nameSpan.onclick = () => window.location.href = `team-tasks.html?teamId=${team.id}`;
+
+    // Кнопка удаления (только для лида)
+    const deleteBtn = document.createElement("button");
+deleteBtn.textContent = "X";   // вместо "🗑"
+deleteBtn.className = "delete-team-btn";
+deleteBtn.title = "Удалить команду";
+deleteBtn.onclick = (e) => {
+  e.stopPropagation();
+  deleteTeam(team.id);
+};
+    if (currentUser && team.lead_id === currentUser.id) {
+      card.appendChild(nameSpan);
+      card.appendChild(deleteBtn);
+    } else {
+      card.appendChild(nameSpan);
+    }
+
+    container.appendChild(card);
   });
 }
 
