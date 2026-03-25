@@ -27,6 +27,13 @@ async function init() {
   await loadTasks();   // Затем задачи (чтобы сопоставить ID и Email)
 }
 
+function clearTaskForm() {
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskDescription").value = "";
+  document.getElementById("taskDeadline").value = "";
+  document.getElementById("taskUser").value = "";
+}
+
 // ================= TEAM INFO =================
 
 async function loadTeamInfo() {
@@ -241,6 +248,7 @@ window.createTask = async function() {
     if (res.ok) {
       closeModal();
       loadTasks();
+      clearTaskForm();
     } else {
       const errorData = await res.json();
       alert("Ошибка создания задачи: " + (errorData.detail || ""));
