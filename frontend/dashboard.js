@@ -11,28 +11,21 @@ const monthNames = [
 ];
 
 // ======================= ИНИЦИАЛИЗАЦИЯ =======================
-
 document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
-
   if (!token) {
-    console.warn("Токен отсутствует, перенаправление на вход...");
     window.location.href = "login.html";
     return;
   }
 
-  // Загружаем данные последовательно
-  await fetchMe();    // 1. Узнаем кто мы
-  await fetchTeams(); // 2. Загружаем наши команды
-  await fetchTasks(); // 3. Загружаем наши задачи
-
-  // Рисуем календарь после получения всех данных
-  renderCalendar();
+  await fetchMe();
+  await fetchTeams();
+  populateTeamSelect();
+  await fetchTasksForTeam();
 });
 
 // ======================= API ЗАПРОСЫ =======================
 
-// Получаем профиль текущего пользователя
 async function fetchMe() {
   const token = localStorage.getItem("token");
   try {
@@ -41,21 +34,19 @@ async function fetchMe() {
     });
     if (res.ok) {
       currentUser = await res.json();
-      console.log("Вы вошли как:", currentUser.email);
     } else {
       throw new Error("Сессия истекла");
     }
   } catch (err) {
-    console.error("Ошибка профиля:", err);
+    console.error(err);
     window.location.href = "login.html";
   }
 }
 
-// Получаем команды, в которых состоит пользователь
 async function fetchTeams() {
   const token = localStorage.getItem("token");
   try {
-    const res = await fetch(`${API}/teams`, { 
+    const res = await fetch(`${API}/teams`, {
       headers: { "Authorization": `Bearer ${token}` }
     });
     if (!res.ok) throw new Error();
@@ -66,22 +57,48 @@ async function fetchTeams() {
   }
 }
 
-// Получаем задачи пользователя
-async function fetchTasks() {
+async function fetchTasksForTeam(teamId = null) {
   const token = localStorage.getItem("token");
+  let url = `${API}/tasks/`;
+  if (teamId) {
+    url += `?team_id=${teamId}`;
+  }
   try {
-    const res = await fetch(`${API}/tasks`, { 
-      headers: { "Authorization": `Bearer ${token}` }
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` }
     });
-    if (!res.ok) throw new Error();
-    tasks = await res.json();
-    // Календарь перерисуется сам после вызова этой функции в init
+    if (!res.ok) throw new Error("Ошибка загрузки задач");
+    const allTasks = await res.json();
+    tasks = allTasks.filter(t => Number(t.user_id) === Number(currentUser?.id));
+    renderCalendar();
   } catch (err) {
     console.error("Ошибка загрузки задач:", err);
   }
 }
 
-// Создание новой команды
+function populateTeamSelect() {
+  const select = document.getElementById("teamSelect");
+  if (!select) return;
+  select.innerHTML = '<option value="">Все команды</option>';
+  teams.forEach(team => {
+    const option = document.createElement("option");
+    option.value = team.id;
+    option.textContent = team.name;
+    select.appendChild(option);
+  });
+  select.onchange = function() {
+    const teamId = this.value;
+    fetchTasksForTeam(teamId ? parseInt(teamId) : null);
+  };
+}
+
+window.applyTeamFilter = function() {
+  const select = document.getElementById("teamSelect");
+  const teamId = select.value;
+  fetchTasksForTeam(teamId ? parseInt(teamId) : null);
+};
+
+// ======================= СОЗДАНИЕ КОМАНДЫ =======================
 window.createTeam = async function () {
   const token = localStorage.getItem("token");
   const nameInput = document.getElementById("teamNameInput");
@@ -103,9 +120,10 @@ window.createTeam = async function () {
     if (!res.ok) throw new Error("Ошибка при создании");
 
     const newTeam = await res.json();
-    teams.push(newTeam); // Добавляем в локальный массив
-    renderTeams();       // Перерисовываем список слева
-    
+    teams.push(newTeam);
+    renderTeams();
+    populateTeamSelect();
+
     nameInput.value = "";
     closeTeamModal();
   } catch (err) {
@@ -114,20 +132,17 @@ window.createTeam = async function () {
 };
 
 // ======================= ЛОГИКА КАЛЕНДАРЯ =======================
-
 function renderCalendar() {
   const grid = document.getElementById("calendarGrid");
   const title = document.getElementById("monthTitle");
   if (!grid || !title) return;
 
-  // ОЧИСТКА: самое важное, чтобы сетка не росла бесконечно
   grid.innerHTML = "";
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   title.innerText = `${monthNames[month]} ${year}`;
 
-  // 1. Добавляем заголовки дней недели
   const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
   weekDays.forEach(day => {
     const div = document.createElement("div");
@@ -138,8 +153,6 @@ function renderCalendar() {
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  // Смещение (JS: 0 - Вс, 1 - Пн... 6 - Сб)
   let startShift = firstDay === 0 ? 6 : firstDay - 1;
 
   for (let i = 0; i < startShift; i++) {
@@ -151,35 +164,25 @@ function renderCalendar() {
   const now = new Date();
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
- for (let d = 1; d <= daysInMonth; d++) {
+  for (let d = 1; d <= daysInMonth; d++) {
     const div = document.createElement("div");
     div.className = "calendar-day";
-    
+
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    
+
     if (dateStr === todayStr) div.classList.add("today");
 
     div.innerHTML = `<b>${d}</b>`;
 
-    // ОБНОВЛЕННЫЙ ФИЛЬТР: проверяем дату И принадлежность пользователю
-    const dayTasks = tasks.filter(t => {
-      const isSameDate = t.deadline && t.deadline.startsWith(dateStr);
-      // Сравниваем ID создателя задачи с ID текущего пользователя
-      const isMyTask = Number(t.user_id) === Number(currentUser?.id); 
-      
-      return isSameDate && isMyTask;
-    });
+    const dayTasks = tasks.filter(t => t.deadline && t.deadline.startsWith(dateStr));
 
     const dotsContainer = document.createElement("div");
     dotsContainer.className = "task-dots-container";
 
-
     dayTasks.forEach(task => {
       const dot = document.createElement("div");
       dot.className = "task-dot";
-      // Используем аттрибут для CSS (красный/зеленый)
       dot.setAttribute("data-done", task.completed);
-      
       dot.onclick = (e) => {
         e.stopPropagation();
         showTaskPopup(task);
@@ -191,8 +194,8 @@ function renderCalendar() {
     grid.appendChild(div);
   }
 }
-// ======================= UI ФУНКЦИИ =======================
 
+// ======================= UI ФУНКЦИИ =======================
 function renderTeams() {
   const container = document.getElementById("teamsList");
   if (!container) return;
@@ -213,17 +216,17 @@ function renderTeams() {
     container.appendChild(div);
   });
 }
+
 function showTaskPopup(task) {
   const popup = document.getElementById("taskPopup");
   if (!popup) return;
 
-  // Ищем название команды по team_id из нашего массива команд
   const team = teams.find(t => Number(t.id) === Number(task.team_id));
   const teamName = team ? team.name : "Личная задача";
 
   document.getElementById("popupTitle").innerText = task.title;
   document.getElementById("popupDescription").innerText = task.description || "Описание отсутствует";
-  
+
   const deadline = task.deadline ? task.deadline.split('T')[0] : "Нет";
   const status = task.completed ? "✅ Сделано" : "⏳ В работе";
 
@@ -236,13 +239,9 @@ function showTaskPopup(task) {
   popup.style.display = "flex";
 }
 
-// Глобальные обработчики для кнопок в HTML
+// ======================= ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ =======================
 window.prevMonth = () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); };
 window.nextMonth = () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); };
 window.openCreateTeam = () => { document.getElementById("teamModal").style.display = "flex"; };
 window.closeTeamModal = () => { document.getElementById("teamModal").style.display = "none"; };
 window.closeTaskPopup = () => { document.getElementById("taskPopup").style.display = "none"; };
-
-
-
-
