@@ -7,12 +7,8 @@ let tasks = [];
 let teamMembers = [];
 let isLeader = false;
 let currentUserId = null;
-
-// Два независимых фильтра
-let executorFilter = "all";   // "all" или "my"
-let statusFilter = "all";     // "all", "done", "not_done"
-
-// ================= INIT =================
+let executorFilter = "all";   
+let statusFilter = "all";     
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!teamId) {
@@ -28,8 +24,6 @@ async function init() {
   await loadMembers();
   await loadTasks();
 }
-
-// ================= TEAM INFO =================
 
 async function loadTeamInfo() {
   const token = localStorage.getItem("token");
@@ -70,8 +64,6 @@ function updateLeaderUI() {
   }
 }
 
-// ================= MEMBERS =================
-
 async function loadMembers() {
   const token = localStorage.getItem("token");
   try {
@@ -95,8 +87,6 @@ function fillMembersSelects() {
   if (editSelect) editSelect.innerHTML = optionsHtml;
 }
 
-// ================= LOAD TASKS =================
-
 async function loadTasks() {
   const token = localStorage.getItem("token");
   try {
@@ -110,20 +100,17 @@ async function loadTasks() {
   }
 }
 
-// ================= RENDER =================
 function renderTasks() {
   const container = document.getElementById("tasksContainer");
   if (!container) return;
 
   container.innerHTML = "";
 
-  // 1. Фильтр по исполнителю
   let filtered = tasks;
   if (executorFilter === "my") {
     filtered = filtered.filter(task => Number(task.user_id) === Number(currentUserId));
   }
 
-  // 2. Фильтр по статусу
   if (statusFilter === "done") {
     filtered = filtered.filter(task => task.completed);
   } else if (statusFilter === "not_done") {
@@ -180,9 +167,6 @@ function renderTasks() {
   });
 }
 
-// ================= FILTERS =================
-
-// Верхние кнопки (исполнитель)
 function showMyTasks() {
   executorFilter = "my";
   renderTasks();
@@ -193,13 +177,10 @@ function showAllTasks() {
   renderTasks();
 }
 
-// Нижние кнопки (статус)
 function setStatusFilter(filter) {
   statusFilter = filter;
   renderTasks();
 }
-
-// ================= TASK ACTIONS =================
 
 async function toggleTask(id, button) {
   const token = localStorage.getItem("token");
@@ -219,8 +200,6 @@ async function toggleTask(id, button) {
     alert("Ошибка обновления");
   }
 }
-
-// ================= CREATE =================
 
 function clearTaskForm() {
   document.getElementById("taskTitle").value = "";
@@ -265,8 +244,6 @@ function createTask() {
     .catch(e => alert("Ошибка создания задачи: " + e.message));
 }
 
-// ================= DELETE =================
-
 function handleDelete(id) {
   if (!isLeader) {
     alert("Только лидер может удалять задачи");
@@ -289,8 +266,6 @@ async function deleteTask(id) {
     alert("Ошибка удаления");
   }
 }
-
-// ================= EDIT =================
 
 let editingTaskId = null;
 
@@ -354,8 +329,6 @@ function closeEditModal() {
   document.getElementById("editTaskModal").style.display = "none";
 }
 
-// ================= MODALS =================
-
 function openModal() {
   fillMembersSelects();
   document.getElementById("taskModal").style.display = "flex";
@@ -368,8 +341,6 @@ function closeModal() {
 function goBack() {
   window.location.href = "dashboard.html";
 }
-
-// ================= MEMBER ACTIONS =================
 
 function openMemberModal() {
   document.getElementById("memberModal").style.display = "flex";
@@ -411,8 +382,6 @@ function addMemberByEmail() {
     })
     .catch(e => alert("Критическая ошибка: " + e.message));
 }
-
-// ================= MEMBER LIST =================
 
 function openMembersListModal() {
   renderMembersList();
