@@ -162,3 +162,18 @@ def get_tasks_by_team(team_id: int):
     cur.close()
     conn.close()
     return tasks
+
+def delete_user_tasks_in_team(user_id: int, team_id: int) -> bool:
+    conn = get_connection()
+    if not conn:
+        return False
+    cur = conn.cursor()
+    cur.execute(
+        "DELETE FROM tasks WHERE user_id = %s AND team_id = %s",
+        (user_id, team_id)
+    )
+    deleted = cur.rowcount > 0
+    conn.commit()
+    cur.close()
+    conn.close()
+    return deleted

@@ -153,3 +153,18 @@ def is_member(user_id: int, team_id: int) -> bool:
     cur.close()
     conn.close()
     return exists
+
+def remove_member_from_team(user_id: int, team_id: int):
+    conn = get_connection()
+    if not conn:
+        return False
+    cur = conn.cursor()
+    cur.execute(
+        "DELETE FROM team_members WHERE user_id = %s AND team_id = %s",
+        (user_id, team_id)
+    )
+    deleted = cur.rowcount > 0
+    conn.commit()
+    cur.close()
+    conn.close()
+    return deleted

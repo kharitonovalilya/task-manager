@@ -4,10 +4,13 @@ const params = new URLSearchParams(window.location.search);
 const teamId = params.get("teamId");
 
 let tasks = [];
-let teamMembers = []; // Храним список участников команды
+let teamMembers = [];
 let isLeader = false;
-let currentFilter = "all"; // all | done | not_done | my
 let currentUserId = null;
+
+// Два независимых фильтра
+let executorFilter = "all";   // "all" или "my"
+let statusFilter = "all";     // "all", "done", "not_done"
 
 // ================= INIT =================
 
@@ -17,43 +20,32 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "dashboard.html";
     return;
   }
-
   init();
 });
 
 async function init() {
   await loadTeamInfo();
-  await loadMembers(); // Сначала загружаем участников
-  await loadTasks();   // Затем задачи (чтобы сопоставить ID и Email)
-}
-
-function clearTaskForm() {
-  document.getElementById("taskTitle").value = "";
-  document.getElementById("taskDescription").value = "";
-  document.getElementById("taskDeadline").value = "";
-  document.getElementById("taskUser").value = "";
+  await loadMembers();
+  await loadTasks();
 }
 
 // ================= TEAM INFO =================
 
 async function loadTeamInfo() {
   const token = localStorage.getItem("token");
-
   try {
     const teamRes = await fetch(`${API}/teams/${teamId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-
     const team = await teamRes.json();
     document.getElementById("teamTitle").innerText = team.name;
 
     const meRes = await fetch(`${API}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-
     const me = await meRes.json();
 
-    currentUserId = Number(me.id); // Принудительно в число
+    currentUserId = Number(me.id);
     isLeader = Number(team.lead_id) === currentUserId;
 
     updateLeaderUI();
@@ -68,18 +60,12 @@ function updateLeaderUI() {
   const container = document.querySelector(".team-page");
 
   if (!isLeader) {
-    // Скрываем кнопки управления полностью для обычного участника
     if (createTaskBtn) createTaskBtn.style.display = "none";
     if (addMemberBtn) addMemberBtn.style.display = "none";
-    
-    // Удаляем класс лидера, если он был
     container.classList.remove("is-leader");
   } else {
-    // Показываем кнопки для лидера
     if (createTaskBtn) createTaskBtn.style.display = "inline-block";
     if (addMemberBtn) addMemberBtn.style.display = "inline-block";
-    
-    // Добавляем класс лидера для управления CSS (кнопки задач)
     container.classList.add("is-leader");
   }
 }
@@ -102,7 +88,7 @@ function fillMembersSelects() {
   const taskSelect = document.getElementById("taskUser");
   const editSelect = document.getElementById("editTaskUser");
 
-  const optionsHtml = '<option value="">Выберите исполнителя</option>' + 
+  const optionsHtml = '<option value="">Выберите исполнителя</option>' +
     teamMembers.map(m => `<option value="${m.id}">${m.email}</option>`).join("");
 
   if (taskSelect) taskSelect.innerHTML = optionsHtml;
@@ -113,12 +99,10 @@ function fillMembersSelects() {
 
 async function loadTasks() {
   const token = localStorage.getItem("token");
-
   try {
     const res = await fetch(`${API}/teams/${teamId}/tasks`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-
     tasks = await res.json();
     renderTasks();
   } catch (e) {
@@ -132,14 +116,19 @@ function renderTasks() {
   if (!container) return;
 
   container.innerHTML = "";
-  
-  // Фильтрация
-  const filtered = tasks.filter(task => {
-    if (currentFilter === "done") return task.completed;
-    if (currentFilter === "not_done") return !task.completed;
-    if (currentFilter === "my") return Number(task.user_id) === Number(currentUserId);
-    return true;
-  });
+
+  // 1. Фильтр по исполнителю
+  let filtered = tasks;
+  if (executorFilter === "my") {
+    filtered = filtered.filter(task => Number(task.user_id) === Number(currentUserId));
+  }
+
+  // 2. Фильтр по статусу
+  if (statusFilter === "done") {
+    filtered = filtered.filter(task => task.completed);
+  } else if (statusFilter === "not_done") {
+    filtered = filtered.filter(task => !task.completed);
+  }
 
   if (filtered.length === 0) {
     container.innerHTML = "<p style='text-align:center;opacity:0.6'>Задач пока нет</p>";
@@ -149,14 +138,13 @@ function renderTasks() {
   filtered.forEach(task => {
     const div = document.createElement("div");
     div.className = "task-card";
-    
-    // ПРОВЕРКА ПРАВ (принудительно к числам)
+    if (task.completed) div.classList.add("done");
+
     const taskOwnerId = Number(task.user_id);
     const myId = Number(currentUserId);
     const isAssignee = taskOwnerId === myId;
     const canToggle = isLeader || isAssignee;
 
-    if (task.completed) div.classList.add("done");
     if (isAssignee) div.classList.add("my-task");
 
     const member = teamMembers.find(m => Number(m.id) === taskOwnerId);
@@ -164,9 +152,9 @@ function renderTasks() {
 
     div.innerHTML = `
       <div class="task-left">
-        <button 
+        <button
           class="done-btn ${task.completed ? "completed" : ""}"
-          ${canToggle ? `onclick="toggleTask(${task.id}, this)"` : "disabled"} 
+          ${canToggle ? `onclick="toggleTask(${task.id}, this)"` : "disabled"}
           style="${canToggle ? 'cursor: pointer; opacity: 1;' : 'cursor: not-allowed; opacity: 0.3;'}"
         >
           ✔
@@ -194,39 +182,32 @@ function renderTasks() {
 
 // ================= FILTERS =================
 
-window.showAllTasks = function () {
-  currentFilter = "all";
+// Верхние кнопки (исполнитель)
+function showMyTasks() {
+  executorFilter = "my";
   renderTasks();
-};
+}
 
-window.showDoneTasks = function () {
-  currentFilter = "done";
+function showAllTasks() {
+  executorFilter = "all";
   renderTasks();
-};
+}
 
-window.showNotDoneTasks = function () {
-  currentFilter = "not_done";
+// Нижние кнопки (статус)
+function setStatusFilter(filter) {
+  statusFilter = filter;
   renderTasks();
-};
-
-window.showMyTasks = function () {
-  currentFilter = "my";
-  renderTasks();
-};
+}
 
 // ================= TASK ACTIONS =================
 
-window.toggleTask = async function(id, button) {
+async function toggleTask(id, button) {
   const token = localStorage.getItem("token");
-  // Нам больше не нужно отправлять body с completed, 
-  // так как бэкенд сам переключает статус (toggle)
-  
+
   try {
-    const res = await fetch(`${API}/tasks/${id}/toggle-complete`, { // ДОБАВИЛИ /toggle-complete
+    const res = await fetch(`${API}/tasks/${id}/toggle-complete`, {
       method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     });
 
     if (res.ok) {
@@ -237,13 +218,19 @@ window.toggleTask = async function(id, button) {
   } catch (e) {
     alert("Ошибка обновления");
   }
-};
+}
 
 // ================= CREATE =================
 
-window.createTask = async function() {
+function clearTaskForm() {
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskDescription").value = "";
+  document.getElementById("taskDeadline").value = "";
+  document.getElementById("taskUser").value = "";
+}
+
+function createTask() {
   const token = localStorage.getItem("token");
-  
   const userIdValue = document.getElementById("taskUser").value;
   if (!userIdValue) {
     alert("Пожалуйста, выберите исполнителя");
@@ -258,32 +245,29 @@ window.createTask = async function() {
     team_id: Number(teamId)
   };
 
-  try {
-    const res = await fetch(`${API}/tasks`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(data)
-    });
-
-    if (res.ok) {
-      closeModal();
-      loadTasks();
-      clearTaskForm();
-    } else {
-      const errorData = await res.json();
-      alert("Ошибка создания задачи: " + (errorData.detail || ""));
-    }
-  } catch (e) {
-    alert("Ошибка соединения с сервером");
-  }
-};
+  fetch(`${API}/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  })
+    .then(res => {
+      if (res.ok) {
+        closeModal();
+        loadTasks();
+        clearTaskForm();
+      } else {
+        return res.json().then(err => { throw new Error(err.detail || "Ошибка создания задачи"); });
+      }
+    })
+    .catch(e => alert("Ошибка создания задачи: " + e.message));
+}
 
 // ================= DELETE =================
 
-window.handleDelete = function(id) {
+function handleDelete(id) {
   if (!isLeader) {
     alert("Только лидер может удалять задачи");
     return;
@@ -291,17 +275,15 @@ window.handleDelete = function(id) {
   if (confirm("Удалить задачу?")) {
     deleteTask(id);
   }
-};
+}
 
 async function deleteTask(id) {
   const token = localStorage.getItem("token");
-
   try {
     await fetch(`${API}/tasks/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
-
     loadTasks();
   } catch (e) {
     alert("Ошибка удаления");
@@ -312,19 +294,19 @@ async function deleteTask(id) {
 
 let editingTaskId = null;
 
-window.handleEdit = function(id) {
+function handleEdit(id) {
   if (!isLeader) {
     alert("Только лидер может редактировать задачи");
     return;
   }
   openEditModal(id);
-};
+}
 
-window.openEditModal = function(id) {
+function openEditModal(id) {
   const task = tasks.find(t => t.id === id);
   editingTaskId = id;
 
-  fillMembersSelects(); // Заполняем список участников
+  fillMembersSelects();
 
   document.getElementById("editTaskTitle").value = task.title;
   document.getElementById("editTaskDescription").value = task.description || "";
@@ -332,11 +314,10 @@ window.openEditModal = function(id) {
   document.getElementById("editTaskUser").value = task.user_id || "";
 
   document.getElementById("editTaskModal").style.display = "flex";
-};
+}
 
-window.saveTaskEdit = async function() {
+function saveTaskEdit() {
   const token = localStorage.getItem("token");
-  
   const userIdValue = document.getElementById("editTaskUser").value;
   if (!userIdValue) {
     alert("Пожалуйста, выберите исполнителя");
@@ -350,113 +331,104 @@ window.saveTaskEdit = async function() {
     user_id: parseInt(userIdValue)
   };
 
-  try {
-    const res = await fetch(`${API}/tasks/${editingTaskId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(data)
-    });
+  fetch(`${API}/tasks/${editingTaskId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  })
+    .then(res => {
+      if (res.ok) {
+        closeEditModal();
+        loadTasks();
+      } else {
+        return res.json().then(err => { throw new Error(err.detail || "Ошибка редактирования"); });
+      }
+    })
+    .catch(e => alert("Ошибка редактирования: " + e.message));
+}
 
-    if (res.ok) {
-      closeEditModal();
-      loadTasks();
-    } else {
-      const errorData = await res.json();
-      alert("Ошибка редактирования: " + (errorData.detail || ""));
-    }
-  } catch (e) {
-    alert("Ошибка соединения с сервером");
-  }
-};
-
-window.closeEditModal = function() {
+function closeEditModal() {
   document.getElementById("editTaskModal").style.display = "none";
-};
+}
 
 // ================= MODALS =================
 
-window.openModal = function() {
-  fillMembersSelects(); // Заполняем список участников
+function openModal() {
+  fillMembersSelects();
   document.getElementById("taskModal").style.display = "flex";
-};
+}
 
-window.closeModal = function() {
+function closeModal() {
   document.getElementById("taskModal").style.display = "none";
-};
+}
 
-// ================= NAV =================
-
-window.goBack = function() {
+function goBack() {
   window.location.href = "dashboard.html";
-};
+}
 
 // ================= MEMBER ACTIONS =================
 
-window.openMemberModal = function() {
+function openMemberModal() {
   document.getElementById("memberModal").style.display = "flex";
-};
+}
 
-window.closeMemberModal = function() {
+function closeMemberModal() {
   document.getElementById("memberModal").style.display = "none";
   document.getElementById("memberEmail").value = "";
-};
+}
 
-window.addMemberByEmail = async function() {
+function addMemberByEmail() {
   const token = localStorage.getItem("token");
-  const emailInput = document.getElementById("memberEmail");
-  const email = emailInput.value.trim();
+  const email = document.getElementById("memberEmail").value.trim();
 
   if (!email) {
     alert("Введите email");
     return;
   }
 
-  try {
-    const res = await fetch(`${API}/teams/${teamId}/members/add-by-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify({ email: email })
-    });
+  fetch(`${API}/teams/${teamId}/members/add-by-email`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ email })
+  })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+      if (ok) {
+        alert("Пользователь успешно добавлен в команду!");
+        closeMemberModal();
+        loadMembers();
+        loadTasks();
+      } else {
+        alert("Ошибка: " + (data.detail || "Не удалось добавить пользователя"));
+        if (data.status === 404) document.getElementById("memberEmail").value = "";
+      }
+    })
+    .catch(e => alert("Критическая ошибка: " + e.message));
+}
 
-    const result = await res.json();
+// ================= MEMBER LIST =================
 
-    if (res.ok) {
-      alert("Пользователь успешно добавлен в команду!");
-      closeMemberModal();
-      await loadMembers(); // Подгружаем нового участника
-      renderTasks();       // Обновляем интерфейс
-    } else {
-      alert("Ошибка: " + (result.detail || "Не удалось добавить пользователя"));
-      if (res.status === 404) emailInput.value = "";
-    }
-  } catch (e) {
-    console.error(e);
-    alert("Критическая ошибка: проверьте соединение с сервером");
-  }
-};
-
-// ================= MEMBER LIST LOGIC =================
-
-window.openMembersListModal = function() {
+function openMembersListModal() {
   renderMembersList();
   document.getElementById("membersListModal").style.display = "flex";
-};
+}
 
-window.closeMembersListModal = function() {
+function closeMembersListModal() {
   document.getElementById("membersListModal").style.display = "none";
-};
+}
 
 function renderMembersList() {
   const container = document.getElementById("membersListContainer");
+  if (!container) return;
   container.innerHTML = "";
 
-  if (teamMembers.length === 0) {
+  if (!teamMembers || teamMembers.length === 0) {
     container.innerHTML = "<p>Участников пока нет</p>";
     return;
   }
@@ -469,22 +441,19 @@ function renderMembersList() {
     row.style.padding = "10px 0";
     row.style.borderBottom = "1px solid rgba(0,0,0,0.1)";
 
-    // Почта участника
     const emailSpan = document.createElement("span");
     emailSpan.innerText = member.email;
     row.appendChild(emailSpan);
 
-    // Кнопка удаления (только для лидера и не для самого себя)
     if (isLeader && Number(member.id) !== Number(currentUserId)) {
       const delBtn = document.createElement("button");
       delBtn.innerText = "X";
-      delBtn.style.backgroundColor = "#f0efefaf";
+      delBtn.style.backgroundColor = "#dddddd";
       delBtn.style.border = "none";
-      delBtn.style.color = "white";
+      delBtn.style.color = "#333";
       delBtn.style.padding = "5px 10px";
       delBtn.style.borderRadius = "5px";
       delBtn.style.cursor = "pointer";
-      
       delBtn.onclick = () => removeMember(member.id);
       row.appendChild(delBtn);
     }
@@ -502,20 +471,16 @@ async function removeMember(userId) {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
-
     if (res.ok) {
       alert("Участник удален");
-      await loadMembers(); // Перезагружаем список из БД
-      renderMembersList(); // Обновляем список в модалке
-      loadTasks();         // Перезагружаем задачи (так как исполнители могли смениться)
+      await loadMembers();
+      renderMembersList();
+      loadTasks();
     } else {
       const err = await res.json();
       alert("Ошибка удаления: " + (err.detail || "Не удалось"));
     }
   } catch (e) {
-    console.error(e);
     alert("Ошибка соединения с сервером");
   }
 }
-
-

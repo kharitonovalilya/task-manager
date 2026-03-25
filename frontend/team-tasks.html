@@ -63,10 +63,10 @@
 
   <div id="tasksContainer"></div>
 
-  <div class="tabs">
-  <button onclick="showAllTasks()">Все задачи</button>
-  <button onclick="showDoneTasks()">Выполненные</button>
-  <button onclick="showNotDoneTasks()">Невыполненные</button>
+<div class="tabs">
+  <button onclick="setStatusFilter('all')">Все задачи</button>
+  <button onclick="setStatusFilter('done')">Выполненные</button>
+  <button onclick="setStatusFilter('not_done')">Невыполненные</button>
 </div>
 
 </div>
@@ -106,11 +106,6 @@
     </div>
   </div>
 </div>
-
-
-
-
-
 
 <script src="team-tasks.js"></script>
 </body>

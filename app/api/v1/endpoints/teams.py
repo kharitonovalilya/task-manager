@@ -63,10 +63,16 @@ def add_member_by_email(
 
 @router.delete("/{team_id}/members/{user_id}")
 def remove_member(team_id: int, user_id: int, current_user: dict = Depends(get_current_user)):
+    team = team_crud.get_team(team_id)
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    if team["lead_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Only team lead can remove members")
     success = team_crud.remove_member_from_team(user_id, team_id)
     if not success:
         raise HTTPException(status_code=404, detail="Member not found in team")
-    return {"message": "Member removed"}
+    task_crud.delete_user_tasks_in_team(user_id, team_id)
+    return {"message": "Member removed and their tasks deleted"}
 
 @router.get("/{team_id}/members", response_model=List[dict])
 def get_members(team_id: int, current_user: dict = Depends(get_current_user)):
