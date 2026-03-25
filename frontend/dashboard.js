@@ -10,7 +10,6 @@ const monthNames = [
   "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"
 ];
 
-// ======================= ИНИЦИАЛИЗАЦИЯ =======================
 document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -23,8 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   populateTeamSelect();
   await fetchTasksForTeam();
 });
-
-// ======================= API ЗАПРОСЫ =======================
 
 async function fetchMe() {
   const token = localStorage.getItem("token");
@@ -90,10 +87,9 @@ async function deleteTeam(teamId) {
     });
 
     if (res.ok) {
-      // Удаляем команду из локального массива
       teams = teams.filter(t => t.id !== teamId);
-      renderTeams();          // обновляем список
-      populateTeamSelect();   // обновляем селект выбора команды в календаре
+      renderTeams();         
+      populateTeamSelect();   
     } else {
       const err = await res.json();
       alert("Ошибка удаления: " + (err.detail || "Недостаточно прав"));
@@ -125,7 +121,6 @@ window.applyTeamFilter = function() {
   fetchTasksForTeam(teamId ? parseInt(teamId) : null);
 };
 
-// ======================= СОЗДАНИЕ КОМАНДЫ =======================
 window.createTeam = async function () {
   const token = localStorage.getItem("token");
   const nameInput = document.getElementById("teamNameInput");
@@ -158,7 +153,6 @@ window.createTeam = async function () {
   }
 };
 
-// ======================= ЛОГИКА КАЛЕНДАРЯ =======================
 function renderCalendar() {
   const grid = document.getElementById("calendarGrid");
   const title = document.getElementById("monthTitle");
@@ -222,7 +216,6 @@ function renderCalendar() {
   }
 }
 
-// ======================= UI ФУНКЦИИ =======================
 function renderTeams() {
   const container = document.getElementById("teamsList");
   if (!container) return;
@@ -237,20 +230,18 @@ function renderTeams() {
     const card = document.createElement("div");
     card.className = "team-card";
 
-    // Имя команды (кликабельно для перехода)
     const nameSpan = document.createElement("span");
     nameSpan.textContent = team.name;
     nameSpan.style.cursor = "pointer";
     nameSpan.onclick = () => window.location.href = `team-tasks.html?teamId=${team.id}`;
 
-    // Кнопка удаления (только для лида)
     const deleteBtn = document.createElement("button");
-deleteBtn.textContent = "X";   // вместо "🗑"
-deleteBtn.className = "delete-team-btn";
-deleteBtn.title = "Удалить команду";
-deleteBtn.onclick = (e) => {
-  e.stopPropagation();
-  deleteTeam(team.id);
+    deleteBtn.textContent = "X";  
+    deleteBtn.className = "delete-team-btn";
+    deleteBtn.title = "Удалить команду";
+    deleteBtn.onclick = (e) => {
+    e.stopPropagation();
+    deleteTeam(team.id);
 };
     if (currentUser && team.lead_id === currentUser.id) {
       card.appendChild(nameSpan);
@@ -285,7 +276,6 @@ function showTaskPopup(task) {
   popup.style.display = "flex";
 }
 
-// ======================= ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ =======================
 window.prevMonth = () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); };
 window.nextMonth = () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); };
 window.openCreateTeam = () => { document.getElementById("teamModal").style.display = "flex"; };
