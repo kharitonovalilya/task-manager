@@ -1009,3 +1009,66 @@ body{
   background: rgba(255,255,255,0.3);
   transform: scale(1.1);
 }
+
+#taskPopup .modal-content {
+  gap: 12px;
+  padding: 24px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  max-width: 450px;
+  width: 90%;
+}
+
+#popupTitle {
+  font-size: 1.5rem;
+  margin: 0 0 8px 0;
+  color: #1a1a1a;
+  font-weight: 600;
+  /* полоса убрана */
+}
+
+/* Единый блок для описания и информации */
+.task-details {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 0 0 8px 0;
+}
+
+#popupDescription {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+  color: #444;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+#popupInfo {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #333;
+  margin: 0;
+}
+
+#taskPopup .modal-buttons {
+  justify-content: center;
+  margin-top: 8px;
+}
+
+#taskPopup .modal-buttons button {
+  background: #ff7a18;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+#taskPopup .modal-buttons button:hover {
+  background: #ff8c2f;
+  transform: translateY(-2px);
+}

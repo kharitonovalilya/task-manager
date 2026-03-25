@@ -274,7 +274,7 @@ function showTaskPopup(task) {
   document.getElementById("popupDescription").innerText = task.description || "Описание отсутствует";
 
   const deadline = task.deadline ? task.deadline.split('T')[0] : "Нет";
-  const status = task.completed ? "✅ Сделано" : "⏳ В работе";
+  const status = task.completed ? "Сделано" : "В работе";
 
   document.getElementById("popupInfo").innerHTML = `
     <b>Команда:</b> ${teamName}<br>

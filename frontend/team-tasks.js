@@ -441,10 +441,15 @@ function renderMembersList() {
     row.style.padding = "5px 0";
     row.style.borderBottom = "1px solid rgba(0,0,0,0.1)";
 
-    const emailSpan = document.createElement("span");
-    emailSpan.innerText = member.email;
-    row.appendChild(emailSpan);
-
+const emailSpan = document.createElement("span");
+let emailText = member.email;
+if (Number(member.id) === Number(currentUserId)) {
+  emailText += " (Вы)";
+  emailSpan.style.fontWeight = "bold";
+  emailSpan.style.color = "#ff7a18";
+}
+emailSpan.innerText = emailText;
+row.appendChild(emailSpan);
     if (isLeader && Number(member.id) !== Number(currentUserId)) {
       const delBtn = document.createElement("button");
       delBtn.innerText = "X";
