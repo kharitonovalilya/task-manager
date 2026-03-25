@@ -122,6 +122,7 @@ async function loadTasks() {
 function renderTasks() {
   const container = document.getElementById("tasksContainer");
   container.innerHTML = "";
+  container.scrollTop = 0;
 
   let filtered = tasks;
 
@@ -134,7 +135,7 @@ function renderTasks() {
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = "<p style='text-align:center;opacity:0.6'>Нет задач</p>";
+    container.innerHTML = "<p style='text-align:center;opacity:0.6'></p>";
     return;
   }
 
@@ -454,8 +455,8 @@ function renderMembersList() {
     // Кнопка удаления (только для лидера и не для самого себя)
     if (isLeader && Number(member.id) !== Number(currentUserId)) {
       const delBtn = document.createElement("button");
-      delBtn.innerText = "🗑";
-      delBtn.style.backgroundColor = "#ff4d4d";
+      delBtn.innerText = "X";
+      delBtn.style.backgroundColor = "#f0efefaf";
       delBtn.style.border = "none";
       delBtn.style.color = "white";
       delBtn.style.padding = "5px 10px";

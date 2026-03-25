@@ -808,3 +808,42 @@ body{
   font-size: 14px;
   color: #333;
 }
+
+/* Основной контейнер страницы команды */
+.team-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Вся высота экрана */
+  box-sizing: border-box;
+  padding: 20px;
+  overflow: hidden; /* Запрещаем прокрутку всей страницы */
+}
+
+/* Контейнер для списка задач */
+#tasksContainer {
+  flex: 1; /* Занимает всё свободное пространство */
+  overflow-y: auto; /* Включает вертикальную прокрутку */
+  margin: 20px 0;
+  padding-right: 10px; /* Отступ для красивого скроллбара */
+  
+  /* Стилизация скроллбара для Webkit (Safari/Chrome) */
+}
+
+#tasksContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+#tasksContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+#tasksContainer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+/* Фиксируем верхнюю часть (заголовок и кнопки) */
+.team-title-card, .tabs, .create-btn {
+  flex-shrink: 0; /* Не дает элементам сжиматься */
+}

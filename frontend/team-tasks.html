@@ -24,15 +24,19 @@
   </div>
 
   <!-- КНОПКА СОЗДАНИЯ -->
+<div class="action-buttons">
   <button id="createTaskBtn" class="create-btn" onclick="openModal()">
     + Создать задачу
   </button>
-  <button id="addMemberBtn" class="create-btn" style="background-color: #28a745; display: none;" onclick="openMemberModal()">
-  + Пригласить участника
-</button>
-<button id="viewMembersBtn" class="create-btn" style="background-color: #6c757d;" onclick="openMembersListModal()">
-  👥 Участники
-</button>
+  
+  <button id="addMemberBtn" class="create-btn" style="background-color: #ff7a18; display: none;" onclick="openMemberModal()">
+    + Пригласить
+  </button>
+  
+  <button id="viewMembersBtn" class="create-btn" style="background-color: #ff7a18;" onclick="openMembersListModal()">
+    Участники
+  </button>
+</div>
 
 <div id="membersListModal" class="modal">
   <div class="modal-content">
