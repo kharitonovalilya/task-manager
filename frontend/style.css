@@ -742,7 +742,7 @@ body{
 /* Стиль для сегодняшнего дня */
 /* Стиль для ячейки сегодняшнего дня */
 .calendar-day.today {
-  background-color: #cfa8db; /* Светло-голубой фон */
+  background-color: rgba(199, 222, 255, 0.6);; /* Светло-голубой фон */
   border: 2px solid #007bff; /* Синяя рамка */
   font-weight: bold;
   color: #007bff;
@@ -953,12 +953,4 @@ body{
   background: #f8f8f8;           /* лёгкое затемнение при наведении */
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
   transform: scale(1.02);
-}
-
-/* ================== СЕГОДНЯШНИЙ ДЕНЬ ================== */
-.calendar-day.today {
-  background-color: #cfa8db; /* Светло-голубой фон */
-  border: 2px solid #007bff; /* Синяя рамка */
-  font-weight: bold;
-  color: #007bff;
 }
