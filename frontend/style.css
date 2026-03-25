@@ -1,18 +1,32 @@
+/* ================= ГЛОБАЛЬНЫЕ СТИЛИ И БАЗОВЫЕ ЭЛЕМЕНТЫ ================= */
 body {
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #3d5ef1, #9973c0);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   font-family: Arial, sans-serif;
 }
+
 .title {
   text-align: center;
   font-size: 26px;
   margin-bottom: 10px;
 }
 
+.link-btn {
+  text-align: center;
+  cursor: pointer;
+  color: #667eea;
+  font-size: 14px;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* ================= СТРАНИЦЫ АВТОРИЗАЦИИ И РЕГИСТРАЦИИ ================= */
 .card {
   background: white;
   padding: 40px;
@@ -28,15 +42,20 @@ body {
   width: 100%;
   padding: 14px;
   margin-top: 15px;
-
   border: none;
   border-radius: 12px;
-
   outline: none;
-
   background: rgba(255,255,255,0.15);
   color: white;
   font-size: 14px;
+}
+
+.input::placeholder {
+  color: rgba(255,255,255,0.7);
+}
+
+.input:focus {
+  background: rgba(255,255,255,0.25);
 }
 
 .primary-btn {
@@ -54,27 +73,16 @@ body {
   background: #5a67d8;
 }
 
-.input::placeholder {
-  color: rgba(255,255,255,0.7);
-}
-
-.input:focus {
-  background: rgba(255,255,255,0.25);
-}
-
 .button {
   width: 100%;
   padding: 14px;
   margin-top: 25px;
-
   border: none;
   border-radius: 12px;
-
   background: linear-gradient(135deg, #ff7a18, #ffb347);
   color: white;
   font-weight: 600;
   font-size: 15px;
-
   cursor: pointer;
   transition: 0.3s;
 }
@@ -84,682 +92,80 @@ body {
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* Делаем ссылку-кнопку для регистрации */
-#goToRegisterBtn {
-  display: block;          /* перенос на новую строку */
-  margin-top: 20px;        /* отступ сверху */
-  text-align: center;      /* по центру */
-  cursor: pointer;         /* как у кнопки */
-  color: #1198e6;          /* цвет текста, можно градиент */
+#goToRegisterBtn, 
+#goToLoginBtn {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+  cursor: pointer;
   font-weight: 600;
   transition: 0.3s;
 }
 
-#goToRegisterBtn:hover {
-  color: #ff7a18;          /* меняется цвет при наведении */
-  transform: scale(1.05);  /* лёгкое увеличение */
+#goToRegisterBtn {
+  color: #1198e6;
 }
 
 #goToLoginBtn {
-  display: block;          /* перенос на новую строку */
-  margin-top: 20px;        /* отступ сверху */
-  text-align: center;      /* по центру */
-  cursor: pointer;         /* как у кнопки */
-  color: #ffb347;          /* цвет текста, можно градиент */
-  font-weight: 600;
-  transition: 0.3s;
+  color: #ffb347;
 }
 
+#goToRegisterBtn:hover, 
 #goToLoginBtn:hover {
-  color: #ff7a18;          /* меняется цвет при наведении */
-  transform: scale(1.05);  /* лёгкое увеличение */
+  color: #ff7a18;
+  transform: scale(1.05);
 }
 
-.task {
-  background: rgba(255,255,255,0.1);
-  padding: 15px;
-  border-radius: 12px;
-  margin-top: 10px;
+/* ================= СТРАНИЦА ДАШБОРДА (КАЛЕНДАРЬ И КОМАНДЫ) ================= */
+.dashboard-page {
+  width: 95vw;
+  height: 90vh;
 }
 
-.create-task {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.dashboard-title {
+  text-align: center;
+  color: white;
+  font-size: 36px;
   margin-bottom: 20px;
 }
 
-.link-btn {
-  text-align: center;
-  cursor: pointer;
-  color: #667eea;
-  font-size: 14px;
-}
-
-.link-btn:hover {
-  text-decoration: underline;
-}
-
-/* Общие стили */
-body{
-  margin:0;
-  min-height:100vh;
-
-  background: linear-gradient(135deg,#667eea,#764ba2);
-  font-family: Arial, sans-serif;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-/* Контейнер страницы */
-.dashboard-page{
-  width:95vw;
-  height:90vh;
-}
-
-/* Заголовок */
-.dashboard-title{
-  text-align:center;
-  color:white;
-  font-size:36px;
-  margin-bottom:20px;
-}
-
-/* Основной контейнер */
-.dashboard{
-  display:flex;
-  width:100%;
-  height:100%;
-  gap:20px;
-}
-
-/* Панель команд */
-.teams-panel{
-
-  width:25%;
-  flex: 1;
-
-  background: rgba(255,255,255,0.2);
+.dashboard-title-card {
+  width: 300px;
+  margin: 0 auto 25px auto;
+  background: rgba(255,255,255,0.25);
   backdrop-filter: blur(12px);
-
-  border-radius:20px;
-
-  padding:20px;
-
-  display:flex;
-  flex-direction:column;
-
-  color:white;
-
-  box-sizing:border-box;
-
-}
-
-/* Панель календаря */
-.calendar-panel{
-
-  flex: 3;
-  width:75%;
-
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(12px);
-
-  border-radius:20px;
-
-  padding:20px;
-
-  display:flex;
-  flex-direction:column;
-
-  color:white;
-
-  box-sizing:border-box;
-  overflow: hidden;
-}
-
-/* Заголовки */
-.teams-panel h2,
-.calendar-panel h2{
-
-  text-align:center;
-
-  margin-bottom:20px;
-
-  font-size:24px;
-  overflow: hidden;
-
-}
-
-/* Карточка команды */
-.team-card{
-
-  background: rgba(255,255,255,0.25);
-
-  padding:15px;
-
-  border-radius:12px;
-
-  margin-bottom:10px;
-
-  cursor:pointer;
-
-  text-align:center;
-
-  font-size:18px;
-
-  transition:0.2s;
-
-}
-
-/* Hover команды */
-.team-card:hover {
-  background: rgba(255,255,255,0.35);
-  /* transform: translateY(-3px); */  /* удалено */
-  /* box-shadow: 0 10px 25px rgba(0,0,0,0.25); */ /* удалено */
-}
-
-/* Календарь */
-.calendar-grid{
-  display:grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: auto repeat(6, 1fr); /* 1 строка — дни недели, 6 — недели */
-  gap:10px;
-  flex-grow:1;
-  height:100%;
-}
-
-/* день недели */
-.calendar-weekday{
-  text-align:center;
-  font-weight:bold;
-  font-size:16px;
-  height:40px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-}
-
-/* день */
-.calendar-day{
-  background: rgba(255,255,255,0.25);
-  border-radius:12px;
-
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-
-  padding:8px;
-  width: 90%;
-  height:85%; /* ВАЖНО — одинаковый размер */
-  transition:0.2s;
-}
-
-/* пустые клетки */
-.calendar-day:not(.empty):hover {
-  background: rgba(255,255,255,0.35);
-}
-
-.calendar-day.empty {
-  background: transparent;
-  pointer-events: none; /* Мышь будет "пролетать" сквозь них, hover не сработает */
-  cursor: default;
-}
-
-
-
-.calendar-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:0px;
-}
-
-.calendar-header button{
-  width:40px;
-  height:40px;
-  border:none;
-  border-radius:10px;
-  background: rgba(255,255,255,0.3);
-  color:white;
-  cursor:pointer;
-}
-
-.calendar-header button:hover{
-  background: rgba(255,255,255,0.5);
-}
-
-/* Точки задач */
-.task-dot{
-
-  width:10px;
-
-  height:10px;
-
-  border-radius:50%;
-
-  margin-top:4px;
-
-}
-
-/* Сделано */
-.task-dot[data-done="true"]{
-
-  background:#4caf50;
-
-}
-
-/* Не сделано */
-.task-dot[data-done="false"]{
-
-  background:#e53e3e;
-
-}
-
-.dashboard-title-card{
-
-  width:300px;
-
-  margin:0 auto 25px auto;
-
-  background: rgba(255,255,255,0.25);
-
-  backdrop-filter: blur(12px);
-
-  border-radius:16px;
-
-  padding:15px;
-
-  text-align:center;
-
-  color:white;
-
-  box-shadow:0 8px 20px rgba(0,0,0,0.25);
-
-}
-
-.dashboard-title-card h1{
-  margin:0;
-  font-size:28px;
-}
-
-/* чтобы список команд занимал всё место */
-#teamsList{
-  flex-grow:1;
-  overflow-y:auto;
-}
-
-/* кнопка создания команды */
-.create-team-btn{
-
-  margin-top:15px;
-
-  padding:12px;
-
-  border:none;
-
-  border-radius:12px;
-
-  background: rgba(255,255,255,0.35);
-
-  color:white;
-
-  font-size:16px;
-
-  cursor:pointer;
-
-  transition:0.2s;
-
-}
-
-/* hover */
-.create-team-btn:hover{
-
-  background: rgba(255,255,255,0.5);
-
-  transform:translateY(-2px);
-
-}
-
-.teams-panel{
-  display:flex;
-  flex-direction:column;
-}
-
-/* Стили для страницы задач команды */
-.team-page{
-  width: 900px;
-  margin: auto;
-  padding-top: 40px;
-}
-
-.tabs{
-  display:flex;
-  gap:10px;
-  margin-bottom:20px;
-}
-
-.tabs button{
-  padding:10px 20px;
-  border:none;
-  border-radius:8px;
-  background:#667eea;
-  color:white;
-  cursor:pointer;
-}
-
-.tabs button:hover{
-  background:#5a67d8;
-}
-
-.task-card{
-  background: rgba(255,255,255,0.25);
-  padding:15px;
-  border-radius:12px;
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:10px;
-}
-
-.task-card.done{
-  opacity:0.6;
-  text-decoration: line-through;
-}
-
-.create-task{
-  margin-top:30px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-/* Кнопка создать */
-/* Кнопка создать */
-.create-btn{
-  padding:12px 20px;
-  border:none;
-  border-radius:10px;
-  background:#ff7a18;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-  margin-bottom:20px;
-  transition:0.2s;
-}
-
-/* Hover для активной кнопки */
-.create-btn:not(:disabled):hover{
-  background:#ff8c2f;
-}
-
-/* Заблокированная кнопка */
-.create-btn:disabled,
-.create-btn.disabled-btn{
-  background:#bbb;
-  cursor:not-allowed;
-  opacity:0.6;
-}
-
-/* Не даём hover заблокированной кнопке */
-.create-btn:disabled:hover,
-.create-btn.disabled-btn:hover{
-  background:#bbb; /* остаётся серой */
-}
-
-.create-btn:hover{
-  background:#ff8c2f;
-}
-
-/* затемнение фона */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-/* окно */
-.modal-content{
-  background:white;
-  padding:30px;
-  border-radius:15px;
-  width:350px;
-
-  display:flex;
-  flex-direction:column;
-  gap:15px;
-}
-
-/* кнопки */
-.modal-buttons{
-  display:flex;
-  justify-content:space-between;
-}
-
-.modal-buttons button{
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-.team-title-card {
-  background: white;
-  padding: 20px 40px;
   border-radius: 16px;
-  width: fit-content;
-
-  margin: 20px auto;
-
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  padding: 15px;
   text-align: center;
+  color: white;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
 }
 
-.team-title-card h1 {
+.dashboard-title-card h1 {
   margin: 0;
   font-size: 28px;
-  color: #333;
 }
 
-.back-button {
-  position: absolute;
-  top: 25px;
-  left: 30px;
-
-  background: white;
-  color: #333;
-
-  padding: 10px 18px;
-  border-radius: 12px;
-
-  font-size: 16px;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-
-  transition: 0.2s;
+.dashboard {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 20px;
 }
 
-.back-button:hover {
-  transform: translateY(-2px);
-  background: #f3f3f3;
+.teams-panel {
+  width: 25%;
+  flex: 1;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  box-sizing: border-box;
 }
 
-.modal-content textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-family: inherit;
-    resize: vertical;
-    box-sizing: border-box;
-}
-
-.task-actions{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-/* одинаковый стиль кнопок */
-.task-actions{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-/* кнопки действий */
-.task-actions button{
-  width:36px;
-  height:36px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  border:none;
-  border-radius:10px;
-
-  background:rgba(255,255,255,0.35);
-
-  cursor:pointer;
-
-  font-size:18px;
-
-  transition:0.2s;
-}
-
-.task-actions button:hover{
-  background:rgba(255,255,255,0.6);
-  transform:scale(1.05);
-}
-
-/* кнопка галочки */
-.done-btn{
-  font-weight:bold;
-}
-
-/* выполненная задача */
-.done-btn.completed{
-  background:#4CAF50;
-  color:white;
-}
-
-.task-card{
-  background: rgba(255,255,255,0.25);
-  padding:15px;
-  border-radius:12px;
-
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-
-  margin-bottom:10px;
-}
-
-/* левая часть */
-.task-left{
-  margin-right:15px;
-}
-
-/* центр */
-.task-content{
-  flex:1;
-}
-
-/* правая часть */
-.task-right{
-  display:flex;
-  gap:10px;
-}
-
-/* кнопки справа */
-.task-right button{
-  width:36px;
-  height:36px;
-
-  border:none;
-  border-radius:10px;
-
-  background:rgba(255,255,255,0.35);
-
-  cursor:pointer;
-
-  font-size:16px;
-
-  transition:0.2s;
-}
-
-.task-right button:hover{
-  background:rgba(255,255,255,0.6);
-}
-
-/* кнопка галочки */
-.done-btn{
-  width:36px;
-  height:36px;
-
-  border:none;
-  border-radius:10px;
-
-  background:rgba(255,255,255,0.35);
-
-  font-size:18px;
-  cursor:pointer;
-
-  transition:0.2s;
-}
-
-.done-btn.completed{
-  background:#4CAF50;
-  color:white;
-}
-
-.disabled-btn{
-  background:#bbb;
-  cursor:not-allowed;
-  opacity:0.6;
-}
-
-.task-right button:disabled{
-  background:#ccc;
-  opacity:0.5;
-  cursor:not-allowed;
-}
-
-/* Стиль для сегодняшнего дня */
-/* Стиль для ячейки сегодняшнего дня */
-.calendar-day.today {
-  background-color: rgba(199, 222, 255, 0.6);; /* Светло-голубой фон */
-  border: 2px solid #007bff; /* Синяя рамка */
-  font-weight: bold;
-  color: #007bff;
-}
-
-/* Маленькая точка под числом для красоты (опционально) */
-.calendar-day.today::after {
-  content: '';
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  background-color: #2196f3;
-  border-radius: 50%;
-}
-
-/* Основной контейнер календаря */
 .calendar-panel {
   flex: 3;
   background: rgba(255, 255, 255, 0.2);
@@ -768,217 +174,63 @@ body{
   padding: 20px;
   display: flex;
   flex-direction: column;
-  /* Убираем жесткую высоту или ставим min-height */
-  min-height: 100%; 
-  height: fit-content; 
+  height: 100%;
+  color: white;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  /* Автоматические строки, чтобы ничего не резалось */
-  grid-auto-rows: minmax(80px, auto); 
-  gap: 10px;
-  width: 100%;
-}
-
-/* Стили для точек, если они не нажимались */
-.task-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  cursor: pointer; /* Чтобы было видно, что можно нажать */
-  margin: 2px;
-  display: inline-block;
-  z-index: 10; /* Поверх ячейки */
-}
-
-.task-dot[data-done="true"] { background: #4caf50; }
-.task-dot[data-done="false"] { background: #e53e3e; }
-
-#membersListContainer div:last-child {
-  border-bottom: none;
-
-}
-
-#membersListContainer span {
-  font-size: 14px;
-  color: #333;
-  margin: 0;
-}
-#membersListModal .modal-content {
-  gap: 0;
-}
-
-#membersListContainer {
-  margin-top: 0 !important;
-  margin-bottom: 15px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-/* Основной контейнер страницы команды */
-.team-page {
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* Вся высота экрана */
-  box-sizing: border-box;
-  padding: 20px;
-  overflow: hidden; /* Запрещаем прокрутку всей страницы */
-}
-
-/* Контейнер для списка задач */
-#tasksContainer {
-  flex: 1; /* Занимает всё свободное пространство */
-  overflow-y: auto; /* Включает вертикальную прокрутку */
-  margin: 20px 0;
-  padding-right: 10px; /* Отступ для красивого скроллбара */
-  
-  /* Стилизация скроллбара для Webkit (Safari/Chrome) */
-}
-
-#tasksContainer::-webkit-scrollbar {
-  width: 8px;
-}
-
-#tasksContainer::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
-#tasksContainer::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-}
-
-/* Фиксируем верхнюю часть (заголовок и кнопки) */
-.team-title-card, .tabs, .create-btn {
-  flex-shrink: 0; /* Не дает элементам сжиматься */
-}
-
-/* Эффект наведения для всех кнопок в ряду управления */
-.action-buttons .create-btn:hover:not(:disabled) {
-  background-color: #ff8c2f !important; /* Светло-оранжевый при наведении */
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-/* Плавный переход для всех кнопок */
-.create-btn {
-  transition: 0.3s background-color, 0.3s transform, 0.3s box-shadow;
-}
-
-/* Скрываем кнопки действий на карточках задач по умолчанию для не-лидеров */
-.task-right {
-  display: none; /* Будем включать через JS только лидеру */
-}
-
-/* Если нужно оставить контейнер, но скрыть кнопки внутри */
-.is-leader .task-right {
-  display: flex !important;
-}
-
-/* Унифицируем hover для всех кнопок управления */
-#createTaskBtn:hover, 
-#addMemberBtn:hover, 
-#viewMembersBtn:hover {
-  background-color: #ff8c2f !important; /* Оранжевый как у главной кнопки */
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  transition: 0.3s all ease;
-}
-
-/* Настройка для галочки-статуса */
-.done-btn:not(:disabled):hover {
-  background-color: rgba(255, 255, 255, 0.5);
-}
-
-.done-btn.completed:not(:disabled):hover {
-  background-color: #45a049; /* Чуть темнее зеленого при наведении */
-}
-
-/* Подсветка задач текущего пользователя */
-.task-card b {
-  color: #333;
-}
-
-/* Если задача моя - добавим легкий акцент на границе */
-.task-card:has(b:contains("(Вы)")) {
-  border-left: 5px solid #ff7a18;
-}
-
-/* Унифицируем поведение всех кнопок в панели действий */
-.action-buttons .create-btn {
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.action-buttons .create-btn:hover:not(:disabled) {
-  background-color: #ff8c2f !important; /* Тот же оранжевый, что у основной кнопки */
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-/* Стили для галочки, чтобы было понятно, что на неё можно нажать */
-.done-btn:not(:disabled):hover {
-  filter: brightness(1.1);
-  transform: scale(1.1);
-}
-
-.done-btn:disabled {
-  filter: grayscale(1);
-  cursor: not-allowed;
-}
-
-/* Разрешаем клики для кнопок, которые мы активировали через JS */
-.done-btn:not([disabled]) {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-    opacity: 1 !important;
-}
-
-.team-selector {
-  margin: 5px auto 5px auto;
+.teams-panel h2,
+.calendar-panel h2 {
   text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  overflow: hidden;
 }
 
-.team-select {
-  width: 200px;
-  padding: 8px 8px;
-  border: none;                  /* нет рамки */
-  border-radius: 30px;
-  background: white;
-  color: #333;
-  font-size: 14px;
-  font-weight: normal;
-  font-family: inherit;
-  cursor: pointer;
-  outline: none;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);  /* лёгкая тень */
-  transition: all 0.2s ease;
-}
-
-.team-select:hover {
-  background: #f8f8f8;           /* лёгкое затемнение при наведении */
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-  transform: scale(1.02);
+#teamsList {
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .team-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
   background: rgba(255,255,255,0.25);
+  padding: 15px;
   border-radius: 12px;
   margin-bottom: 10px;
-  cursor: default; /* не мешаем клику на кнопке */
+  cursor: default;
+  text-align: center;
+  font-size: 18px;
+  transition: 0.2s;
 }
 
 .team-card span {
   flex: 1;
   cursor: pointer;
+}
+
+.team-card:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+.create-team-btn {
+  margin-top: 15px;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.35);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.create-team-btn:hover {
+  background: rgba(255,255,255,0.5);
+  transform: translateY(-2px);
 }
 
 .delete-team-btn {
@@ -998,16 +250,477 @@ body{
 }
 
 .delete-team-btn:hover {
-  background: none !important;
-  transform: none !important;
+  background: rgba(255,255,255,0.3) !important;
   color: #aaa !important;
-  box-shadow: none !important;
-  outline: none !important;
+  transform: scale(1.1) !important;
 }
 
-.delete-team-btn:hover {
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0px;
+}
+
+.calendar-header button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
   background: rgba(255,255,255,0.3);
+  color: white;
+  cursor: pointer;
+}
+
+.calendar-header button:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(80px, auto);
+  gap: 10px;
+  width: 100%;
+  flex-grow: 1;
+  height: 100%;
+  min-height: 0;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.calendar-day {
+  background: rgba(255,255,255,0.25);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px;
+  width: 90%;
+  height: 85%;
+  transition: 0.2s;
+}
+
+.calendar-day.today {
+  background-color: rgba(199, 222, 255, 0.6);
+  border: 2px solid #007bff;
+  font-weight: bold;
+  color: #007bff;
+  position: relative;
+}
+
+.calendar-day.today::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: #2196f3;
+  border-radius: 50%;
+}
+
+.calendar-day:not(.empty):hover {
+  background: rgba(255,255,255,0.35);
+}
+
+.calendar-day.empty {
+  background: transparent;
+  pointer-events: none;
+  cursor: default;
+}
+
+.task-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  margin: 2px;
+  margin-top: 4px;
+  display: inline-block;
+  z-index: 10;
+}
+
+.task-dot[data-done="true"] {
+  background: #4caf50;
+}
+
+.task-dot[data-done="false"] {
+  background: #e53e3e;
+}
+
+/* ================= СТРАНИЦА КОМАНДЫ (УПРАВЛЕНИЕ ЗАДАЧАМИ) ================= */
+.team-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 20px;
+  overflow: hidden;
+  width: 900px;
+  margin: auto;
+}
+
+.team-title-card {
+  background: white;
+  padding: 20px 40px;
+  border-radius: 16px;
+  width: fit-content;
+  margin: 20px auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.team-title-card h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #333;
+}
+
+.back-button {
+  position: absolute;
+  top: 25px;
+  left: 30px;
+  background: white;
+  color: #333;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  transition: 0.2s;
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  background: #f3f3f3;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.tabs button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #667eea;
+  color: white;
+  cursor: pointer;
+}
+
+.tabs button:hover {
+  background: #5a67d8;
+}
+
+.team-selector {
+  margin: 5px auto 5px auto;
+  text-align: center;
+}
+
+.team-select {
+  width: 200px;
+  padding: 8px 8px;
+  border: none;
+  border-radius: 30px;
+  background: white;
+  color: #333;
+  font-size: 14px;
+  font-weight: normal;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.team-select:hover {
+  background: #f8f8f8;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  transform: scale(1.02);
+}
+
+#tasksContainer {
+  flex: 1;
+  overflow-y: auto;
+  margin: 20px 0;
+  padding-right: 10px;
+}
+
+#tasksContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+#tasksContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+#tasksContainer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.task {
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.task-card {
+  background: rgba(255,255,255,0.25);
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.task-card.done {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.task-card b {
+  color: #333;
+}
+
+.task-card:has(b:contains("(Вы)")) {
+  border-left: 5px solid #ff7a18;
+}
+
+.task-left {
+  margin-right: 15px;
+}
+
+.task-content {
+  flex: 1;
+}
+
+.task-right {
+  display: none;
+  gap: 10px;
+}
+
+.is-leader .task-right {
+  display: flex !important;
+}
+
+.task-right button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.35);
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.task-right button:hover {
+  background: rgba(255,255,255,0.6);
+}
+
+.task-right button:disabled {
+  background: #ccc;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-task {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.create-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #ff7a18;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.action-buttons .create-btn {
+  border: none;
+}
+
+.create-btn:hover,
+.action-buttons .create-btn:hover:not(:disabled),
+#createTaskBtn:hover, 
+#addMemberBtn:hover, 
+#viewMembersBtn:hover {
+  background-color: #ff8c2f !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.create-btn:disabled,
+.create-btn.disabled-btn {
+  background: #bbb;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.create-btn:disabled:hover,
+.create-btn.disabled-btn:hover {
+  background: #bbb;
+  transform: none;
+  box-shadow: none;
+}
+
+.task-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.task-actions button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.35);
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s;
+}
+
+.task-actions button:hover {
+  background: rgba(255,255,255,0.6);
+  transform: scale(1.05);
+}
+
+.done-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.35);
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.done-btn.completed {
+  background: #4CAF50;
+  color: white;
+}
+
+.done-btn:disabled {
+  filter: grayscale(1);
+  cursor: not-allowed;
+}
+
+.done-btn:not([disabled]) {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+.done-btn:not(:disabled):hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  filter: brightness(1.1);
   transform: scale(1.1);
+}
+
+.done-btn.completed:not(:disabled):hover {
+  background-color: #45a049;
+}
+
+/* ================= МОДАЛЬНЫЕ ОКНА И ПОПАПЫ ================= */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-buttons button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#membersListModal .modal-content {
+  gap: 0;
+}
+
+#membersListContainer {
+  margin-top: 0 !important;
+  margin-bottom: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+#membersListContainer span {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+#membersListContainer div:last-child {
+  border-bottom: none;
 }
 
 #taskPopup .modal-content {
@@ -1025,10 +738,8 @@ body{
   margin: 0 0 8px 0;
   color: #1a1a1a;
   font-weight: 600;
-  /* полоса убрана */
 }
 
-/* Единый блок для описания и информации */
 .task-details {
   background: #f5f5f5;
   border-radius: 12px;
@@ -1063,7 +774,6 @@ body{
   border: none;
   padding: 8px 24px;
   border-radius: 40px;
-  cursor: pointer;
   font-weight: bold;
   transition: 0.2s;
 }
