@@ -410,5 +410,81 @@ window.addMemberByEmail = async function() {
   }
 };
 
+// ================= MEMBER LIST LOGIC =================
+
+window.openMembersListModal = function() {
+  renderMembersList();
+  document.getElementById("membersListModal").style.display = "flex";
+};
+
+window.closeMembersListModal = function() {
+  document.getElementById("membersListModal").style.display = "none";
+};
+
+function renderMembersList() {
+  const container = document.getElementById("membersListContainer");
+  container.innerHTML = "";
+
+  if (teamMembers.length === 0) {
+    container.innerHTML = "<p>Участников пока нет</p>";
+    return;
+  }
+
+  teamMembers.forEach(member => {
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.justifyContent = "space-between";
+    row.style.alignItems = "center";
+    row.style.padding = "10px 0";
+    row.style.borderBottom = "1px solid rgba(0,0,0,0.1)";
+
+    // Почта участника
+    const emailSpan = document.createElement("span");
+    emailSpan.innerText = member.email;
+    row.appendChild(emailSpan);
+
+    // Кнопка удаления (только для лидера и не для самого себя)
+    if (isLeader && Number(member.id) !== Number(currentUserId)) {
+      const delBtn = document.createElement("button");
+      delBtn.innerText = "🗑";
+      delBtn.style.backgroundColor = "#ff4d4d";
+      delBtn.style.border = "none";
+      delBtn.style.color = "white";
+      delBtn.style.padding = "5px 10px";
+      delBtn.style.borderRadius = "5px";
+      delBtn.style.cursor = "pointer";
+      
+      delBtn.onclick = () => removeMember(member.id);
+      row.appendChild(delBtn);
+    }
+
+    container.appendChild(row);
+  });
+}
+
+async function removeMember(userId) {
+  if (!confirm("Вы уверены, что хотите исключить этого участника из команды?")) return;
+
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch(`${API}/teams/${teamId}/members/${userId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      alert("Участник удален");
+      await loadMembers(); // Перезагружаем список из БД
+      renderMembersList(); // Обновляем список в модалке
+      loadTasks();         // Перезагружаем задачи (так как исполнители могли смениться)
+    } else {
+      const err = await res.json();
+      alert("Ошибка удаления: " + (err.detail || "Не удалось"));
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Ошибка соединения с сервером");
+  }
+}
 
 

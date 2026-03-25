@@ -761,3 +761,50 @@ body{
   background-color: #2196f3;
   border-radius: 50%;
 }
+
+/* Основной контейнер календаря */
+.calendar-panel {
+  flex: 3;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  /* Убираем жесткую высоту или ставим min-height */
+  min-height: 100%; 
+  height: fit-content; 
+  box-sizing: border-box;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  /* Автоматические строки, чтобы ничего не резалось */
+  grid-auto-rows: minmax(80px, auto); 
+  gap: 10px;
+  width: 100%;
+}
+
+/* Стили для точек, если они не нажимались */
+.task-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  cursor: pointer; /* Чтобы было видно, что можно нажать */
+  margin: 2px;
+  display: inline-block;
+  z-index: 10; /* Поверх ячейки */
+}
+
+.task-dot[data-done="true"] { background: #4caf50; }
+.task-dot[data-done="false"] { background: #e53e3e; }
+
+#membersListContainer div:last-child {
+  border-bottom: none;
+}
+
+#membersListContainer span {
+  font-size: 14px;
+  color: #333;
+}

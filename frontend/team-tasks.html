@@ -30,6 +30,20 @@
   <button id="addMemberBtn" class="create-btn" style="background-color: #28a745; display: none;" onclick="openMemberModal()">
   + Пригласить участника
 </button>
+<button id="viewMembersBtn" class="create-btn" style="background-color: #6c757d;" onclick="openMembersListModal()">
+  👥 Участники
+</button>
+
+<div id="membersListModal" class="modal">
+  <div class="modal-content">
+    <h2>Участники команды</h2>
+    <div id="membersListContainer" style="margin-top: 15px; max-height: 300px; overflow-y: auto;">
+      </div>
+    <div class="modal-buttons">
+      <button onclick="closeMembersListModal()">Закрыть</button>
+    </div>
+  </div>
+</div>
 
 <div id="memberModal" class="modal">
   <div class="modal-content">

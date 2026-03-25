@@ -14,7 +14,7 @@ const monthNames = [
 
 document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
-  
+
   if (!token) {
     console.warn("Токен отсутствует, перенаправление на вход...");
     window.location.href = "login.html";
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchMe();    // 1. Узнаем кто мы
   await fetchTeams(); // 2. Загружаем наши команды
   await fetchTasks(); // 3. Загружаем наши задачи
-  
+
   // Рисуем календарь после получения всех данных
   renderCalendar();
 });
@@ -103,13 +103,13 @@ window.createTeam = async function () {
     if (!res.ok) throw new Error("Ошибка при создании");
 
     const newTeam = await res.json();
-    teams.push(newTeam);
-    renderTeams();
+    teams.push(newTeam); // Добавляем в локальный массив
+    renderTeams();       // Перерисовываем список слева
     
     nameInput.value = "";
     closeTeamModal();
   } catch (err) {
-    alert(err.message);
+    alert("Не удалось создать команду: " + err.message);
   }
 };
 
@@ -117,89 +117,80 @@ window.createTeam = async function () {
 
 function renderCalendar() {
   const grid = document.getElementById("calendarGrid");
-  const monthTitle = document.getElementById("monthTitle");
-  
+  const title = document.getElementById("monthTitle");
+  if (!grid || !title) return;
+
+  // ОЧИСТКА: самое важное, чтобы сетка не росла бесконечно
   grid.innerHTML = "";
-  
-  // Устанавливаем заголовок (Месяц Год)
-  monthTitle.innerText = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+  title.innerText = `${monthNames[month]} ${year}`;
 
-  // Находим данные о текущей реальной дате (сегодня)
-  const now = new Date();
-  const todayDay = now.getDate();
-  const todayMonth = now.getMonth();
-  const todayYear = now.getFullYear();
+  // 1. Добавляем заголовки дней недели
+  const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+  weekDays.forEach(day => {
+    const div = document.createElement("div");
+    div.className = "calendar-weekday";
+    div.innerText = day;
+    grid.appendChild(div);
+  });
 
-  // 1. Расчет отступов (пустые ячейки, если месяц начинается не с понедельника)
-  const firstDayOfMonth = new Date(year, month, 1).getDay(); 
-  // В JS 0 - это воскресенье, превращаем в 0 - понедельник ... 6 - воскресенье
-  const shift = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
-
-  for (let i = 0; i < shift; i++) {
-    const emptyDiv = document.createElement("div");
-    emptyDiv.className = "calendar-day empty";
-    grid.appendChild(emptyDiv);
-  }
-
-  // 2. Рисуем дни месяца
+  const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "calendar-day";
-    dayDiv.innerText = d;
+  // Смещение (JS: 0 - Вс, 1 - Пн... 6 - Сб)
+  let startShift = firstDay === 0 ? 6 : firstDay - 1;
 
-    // ПРОВЕРКА НА "СЕГОДНЯ"
-    if (d === todayDay && month === todayMonth && year === todayYear) {
-      dayDiv.classList.add("today");
-    }
+  for (let i = 0; i < startShift; i++) {
+    const div = document.createElement("div");
+    div.className = "calendar-day empty";
+    grid.appendChild(div);
+  }
 
-    // 3. Отображение задач для этого дня
-    // Формируем строку даты в формате YYYY-MM-DD для сравнения с дедлайном
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+ for (let d = 1; d <= daysInMonth; d++) {
+    const div = document.createElement("div");
+    div.className = "calendar-day";
+    
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     
-    // Ищем задачи, у которых deadline совпадает с этой датой
-    const dayTasks = tasks.filter(t => t.deadline && t.deadline.startsWith(dateStr));
+    if (dateStr === todayStr) div.classList.add("today");
 
-    dayTasks.forEach(task => {
-      const taskEl = document.createElement("div");
-      taskEl.className = "calendar-task-item";
-      if (task.completed) taskEl.classList.add("task-done");
+    div.innerHTML = `<b>${d}</b>`;
+
+    // ОБНОВЛЕННЫЙ ФИЛЬТР: проверяем дату И принадлежность пользователю
+    const dayTasks = tasks.filter(t => {
+      const isSameDate = t.deadline && t.deadline.startsWith(dateStr);
+      // Сравниваем ID создателя задачи с ID текущего пользователя
+      const isMyTask = Number(t.user_id) === Number(currentUser?.id); 
       
-      // Показываем кусочек названия задачи
-      taskEl.innerText = task.title;
-      
-      // Клик по задаче открывает подробности
-      taskEl.onclick = (e) => {
-        e.stopPropagation(); // чтобы не сработал клик по ячейке
-        showTaskDetails(task);
-      };
-      
-      dayDiv.appendChild(taskEl);
+      return isSameDate && isMyTask;
     });
 
-    grid.appendChild(dayDiv);
+    const dotsContainer = document.createElement("div");
+    dotsContainer.className = "task-dots-container";
+
+
+    dayTasks.forEach(task => {
+      const dot = document.createElement("div");
+      dot.className = "task-dot";
+      // Используем аттрибут для CSS (красный/зеленый)
+      dot.setAttribute("data-done", task.completed);
+      
+      dot.onclick = (e) => {
+        e.stopPropagation();
+        showTaskPopup(task);
+      };
+      dotsContainer.appendChild(dot);
+    });
+
+    div.appendChild(dotsContainer);
+    grid.appendChild(div);
   }
 }
-
-// Вспомогательная функция для показа деталей задачи в поп-апе
-function showTaskDetails(task) {
-  document.getElementById("popupTitle").innerText = task.title;
-  document.getElementById("popupDescription").innerText = task.description || "Нет описания";
-  
-  const status = task.completed ? "✅ Выполнено" : "⏳ В работе";
-  document.getElementById("popupInfo").innerText = `Статус: ${status}`;
-  
-  document.getElementById("taskPopup").style.display = "flex";
-}
-
-function closeTaskPopup() {
-  document.getElementById("taskPopup").style.display = "none";
-}
-
 // ======================= UI ФУНКЦИИ =======================
 
 function renderTeams() {
@@ -222,15 +213,25 @@ function renderTeams() {
     container.appendChild(div);
   });
 }
-
 function showTaskPopup(task) {
   const popup = document.getElementById("taskPopup");
   if (!popup) return;
 
+  // Ищем название команды по team_id из нашего массива команд
+  const team = teams.find(t => Number(t.id) === Number(task.team_id));
+  const teamName = team ? team.name : "Личная задача";
+
   document.getElementById("popupTitle").innerText = task.title;
   document.getElementById("popupDescription").innerText = task.description || "Описание отсутствует";
-  document.getElementById("popupInfo").innerText = 
-    `Срок: ${task.deadline?.split('T')[0]} | Статус: ${task.completed ? 'Выполнено' : 'В работе'}`;
+  
+  const deadline = task.deadline ? task.deadline.split('T')[0] : "Нет";
+  const status = task.completed ? "✅ Сделано" : "⏳ В работе";
+
+  document.getElementById("popupInfo").innerHTML = `
+    <b>Команда:</b> ${teamName}<br>
+    <b>Дедлайн:</b> ${deadline}<br>
+    <b>Статус:</b> ${status}
+  `;
 
   popup.style.display = "flex";
 }
@@ -241,6 +242,7 @@ window.nextMonth = () => { currentDate.setMonth(currentDate.getMonth() + 1); ren
 window.openCreateTeam = () => { document.getElementById("teamModal").style.display = "flex"; };
 window.closeTeamModal = () => { document.getElementById("teamModal").style.display = "none"; };
 window.closeTaskPopup = () => { document.getElementById("taskPopup").style.display = "none"; };
+
 
 
 
