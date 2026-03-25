@@ -9,7 +9,9 @@ app = FastAPI(title = "Task Manager API")
 
 # create tables if they are not exist
 init_db()
-seed_test_users();
+
+# create test users
+seed_test_users()
 
 # allow front
 origins = [
