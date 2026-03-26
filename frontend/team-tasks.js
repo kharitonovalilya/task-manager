@@ -136,6 +136,7 @@ function renderTasks() {
 
     const member = teamMembers.find(m => Number(m.id) === taskOwnerId);
     const userEmail = member ? member.email : `ID: ${task.user_id}`;
+    const canEdit = isLeader && !task.completed;
 
     div.innerHTML = `
       <div class="task-left">
@@ -157,14 +158,54 @@ function renderTasks() {
 
       ${isLeader ? `
       <div class="task-right" style="display: flex !important;">
-        <button onclick="handleEdit(${task.id})">✏️</button>
-        <button onclick="handleDelete(${task.id})">🗑</button>
+        <button
+          ${canEdit ? `onclick="handleEdit(${task.id})"` : "disabled"}
+          style="${canEdit ? 'cursor: pointer;' : 'cursor: default; opacity: 0.5;'}"
+          title="${canEdit ? 'Редактировать' : 'Нельзя редактировать выполненную задачу'}"
+        >
+          ✏️
+        </button>
+        <button onclick="handleDelete(${task.id})">✖</button>
       </div>
       ` : ''}
     `;
 
     container.appendChild(div);
   });
+}
+
+function handleEdit(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  if (task.completed) {
+    alert("Нельзя редактировать выполненную задачу");
+    return;
+  }
+
+  if (!isLeader) {
+    alert("Только лидер может редактировать задачи");
+    return;
+  }
+
+  openEditModal(id);
+}
+
+function handleEdit(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  if (task.completed) {
+    alert("Нельзя редактировать выполненную задачу");
+    return;
+  }
+
+  if (!isLeader) {
+    alert("Только лидер может редактировать задачи");
+    return;
+  }
+
+  openEditModal(id);
 }
 
 function showMyTasks() {
