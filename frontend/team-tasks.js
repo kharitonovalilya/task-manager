@@ -7,8 +7,10 @@ let tasks = [];
 let teamMembers = [];
 let isLeader = false;
 let currentUserId = null;
-let executorFilter = "all";   
-let statusFilter = "all";     
+let executorFilter = "all";
+let statusFilter = "all";
+let taskUserSelect = null;
+let editTaskUserSelect = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!teamId) {
@@ -22,6 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
 async function init() {
   await loadTeamInfo();
   await loadMembers();
+  const membersOptions = teamMembers.map(m => ({ value: m.id, label: m.email }));
+  taskUserSelect = createCustomSelect('taskUserContainer', membersOptions, (value) => {});
+  editTaskUserSelect = createCustomSelect('editTaskUserContainer', membersOptions, (value) => {});
   await loadTasks();
 }
 
@@ -77,14 +82,9 @@ async function loadMembers() {
 }
 
 function fillMembersSelects() {
-  const taskSelect = document.getElementById("taskUser");
-  const editSelect = document.getElementById("editTaskUser");
-
-  const optionsHtml = '<option value="">Выберите исполнителя</option>' +
-    teamMembers.map(m => `<option value="${m.id}">${m.email}</option>`).join("");
-
-  if (taskSelect) taskSelect.innerHTML = optionsHtml;
-  if (editSelect) editSelect.innerHTML = optionsHtml;
+  const membersOptions = teamMembers.map(m => ({ value: m.id, label: m.email }));
+  if (taskUserSelect) taskUserSelect.updateOptions(membersOptions);
+  if (editTaskUserSelect) editTaskUserSelect.updateOptions(membersOptions);
 }
 
 async function loadTasks() {
@@ -136,6 +136,7 @@ function renderTasks() {
 
     const member = teamMembers.find(m => Number(m.id) === taskOwnerId);
     const userEmail = member ? member.email : `ID: ${task.user_id}`;
+    const canEdit = isLeader && !task.completed;
 
     div.innerHTML = `
       <div class="task-left">
@@ -157,14 +158,54 @@ function renderTasks() {
 
       ${isLeader ? `
       <div class="task-right" style="display: flex !important;">
-        <button onclick="handleEdit(${task.id})">✏️</button>
-        <button onclick="handleDelete(${task.id})">🗑</button>
+        <button
+          ${canEdit ? `onclick="handleEdit(${task.id})"` : "disabled"}
+          style="${canEdit ? 'cursor: pointer;' : 'cursor: default; opacity: 0.5;'}"
+          title="${canEdit ? 'Редактировать' : 'Нельзя редактировать выполненную задачу'}"
+        >
+          ✏️
+        </button>
+        <button onclick="handleDelete(${task.id})">✖</button>
       </div>
       ` : ''}
     `;
 
     container.appendChild(div);
   });
+}
+
+function handleEdit(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  if (task.completed) {
+    alert("Нельзя редактировать выполненную задачу");
+    return;
+  }
+
+  if (!isLeader) {
+    alert("Только лидер может редактировать задачи");
+    return;
+  }
+
+  openEditModal(id);
+}
+
+function handleEdit(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  if (task.completed) {
+    alert("Нельзя редактировать выполненную задачу");
+    return;
+  }
+
+  if (!isLeader) {
+    alert("Только лидер может редактировать задачи");
+    return;
+  }
+
+  openEditModal(id);
 }
 
 function showMyTasks() {
@@ -205,12 +246,12 @@ function clearTaskForm() {
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskDescription").value = "";
   document.getElementById("taskDeadline").value = "";
-  document.getElementById("taskUser").value = "";
+  // кастомный селект уже будет пуст
 }
 
 function createTask() {
   const token = localStorage.getItem("token");
-  const userIdValue = document.getElementById("taskUser").value;
+  const userIdValue = taskUserSelect.getSelectedValue();
   if (!userIdValue) {
     alert("Пожалуйста, выберите исполнителя");
     return;
@@ -281,19 +322,23 @@ function openEditModal(id) {
   const task = tasks.find(t => t.id === id);
   editingTaskId = id;
 
-  fillMembersSelects();
+  fillMembersSelects(); // обновляем список исполнителей (опции)
 
   document.getElementById("editTaskTitle").value = task.title;
   document.getElementById("editTaskDescription").value = task.description || "";
   document.getElementById("editTaskDeadline").value = task.deadline?.split("T")[0] || "";
-  document.getElementById("editTaskUser").value = task.user_id || "";
+
+  // Устанавливаем выбранное значение в кастомном селекте
+  if (editTaskUserSelect) {
+    editTaskUserSelect.setValue(task.user_id);
+  }
 
   document.getElementById("editTaskModal").style.display = "flex";
 }
 
 function saveTaskEdit() {
   const token = localStorage.getItem("token");
-  const userIdValue = document.getElementById("editTaskUser").value;
+  const userIdValue = editTaskUserSelect.getSelectedValue();
   if (!userIdValue) {
     alert("Пожалуйста, выберите исполнителя");
     return;
@@ -410,15 +455,15 @@ function renderMembersList() {
     row.style.padding = "5px 0";
     row.style.borderBottom = "1px solid rgba(0,0,0,0.1)";
 
-const emailSpan = document.createElement("span");
-let emailText = member.email;
-if (Number(member.id) === Number(currentUserId)) {
-  emailText += " (Вы)";
-  emailSpan.style.fontWeight = "bold";
-  emailSpan.style.color = "#ff7a18";
-}
-emailSpan.innerText = emailText;
-row.appendChild(emailSpan);
+    const emailSpan = document.createElement("span");
+    let emailText = member.email;
+    if (Number(member.id) === Number(currentUserId)) {
+      emailText += " (Вы)";
+      emailSpan.style.fontWeight = "bold";
+      emailSpan.style.color = "#ff7a18";
+    }
+    emailSpan.innerText = emailText;
+    row.appendChild(emailSpan);
     if (isLeader && Number(member.id) !== Number(currentUserId)) {
       const delBtn = document.createElement("button");
       delBtn.innerText = "X";
@@ -457,4 +502,82 @@ async function removeMember(userId) {
   } catch (e) {
     alert("Ошибка соединения с сервером");
   }
+}
+
+// ---------- Кастомный селект ----------
+function createCustomSelect(containerId, options, onSelect) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const trigger = document.createElement('div');
+  trigger.className = 'custom-select-trigger';
+  trigger.innerText = options.length ? options[0].label : 'Выберите исполнителя';
+  container.appendChild(trigger);
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'custom-select-dropdown';
+  container.appendChild(dropdown);
+
+  function renderOptions() {
+    dropdown.innerHTML = '';
+    options.forEach(opt => {
+      const optionDiv = document.createElement('div');
+      optionDiv.className = 'custom-option';
+      optionDiv.innerText = opt.label;
+      optionDiv.dataset.value = opt.value;
+      optionDiv.addEventListener('click', () => {
+        trigger.innerText = opt.label;
+        dropdown.classList.remove('show');
+        if (onSelect) onSelect(opt.value);
+        // удалить класс selected у всех опций
+        dropdown.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+        optionDiv.classList.add('selected');
+      });
+      dropdown.appendChild(optionDiv);
+    });
+  }
+  renderOptions();
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('show');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  return {
+    updateOptions(newOptions) {
+      options = newOptions;
+      renderOptions();
+      if (options.length) {
+        trigger.innerText = options[0].label;
+        if (onSelect) onSelect(options[0].value);
+      } else {
+        trigger.innerText = 'Нет участников';
+      }
+    },
+    getSelectedValue() {
+      const selected = dropdown.querySelector('.custom-option.selected');
+      return selected ? selected.dataset.value : null;
+    },
+    setValue(value) {
+      const option = options.find(opt => opt.value == value);
+      if (option) {
+        trigger.innerText = option.label;
+        // Убираем выделение у всех, добавляем у нужного
+        dropdown.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+        const targetOption = Array.from(dropdown.children).find(
+          el => el.dataset.value == value
+        );
+        if (targetOption) targetOption.classList.add('selected');
+        if (onSelect) onSelect(value);
+      }
+    }
+  };
 }

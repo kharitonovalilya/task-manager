@@ -15,7 +15,7 @@
       <h2>Мои команды</h2>
       <div id="teamsList"></div>
       <button class="create-team-btn" onclick="openCreateTeam()">
-        + Создать команду
+        Создать команду
       </button>
     </div>
 
@@ -26,10 +26,9 @@
         <button onclick="nextMonth()">→</button>
       </div>
 
+      <!-- КАСТОМНЫЙ СЕЛЕКТ вместо обычного -->
       <div class="team-selector">
-       <select id="teamSelect" class="team-select">
-         <option value="">Все команды</option>
-       </select>
+        <div id="teamSelectContainer" class="custom-select-wrapper"></div>
       </div>
 
       <div id="calendarGrid" class="calendar-grid"></div>
@@ -56,8 +55,8 @@
     <h3>Создать команду</h3>
     <input id="teamNameInput" placeholder="Название команды" />
     <div class="modal-buttons">
-      <button onclick="closeTeamModal()">Отмена</button>
       <button onclick="createTeam()">Создать</button>
+      <button onclick="closeTeamModal()">Отмена</button>
     </div>
   </div>
 </div>

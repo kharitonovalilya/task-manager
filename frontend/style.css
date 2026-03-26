@@ -1,4 +1,19 @@
 /* ================= ГЛОБАЛЬНЫЕ СТИЛИ И БАЗОВЫЕ ЭЛЕМЕНТЫ ================= */
+
+/* ================= ГЛОБАЛЬНЫЕ СТИЛИ И БАЗОВЫЕ ЭЛЕМЕНТЫ ================= */
+
+@font-face {
+  font-family: 'MyCustomFont';
+  src: url('fonts/Comfortaa-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  font-family: 'MyCustomFont', Arial, sans-serif;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -6,7 +21,16 @@ body {
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #667eea, #764ba2);
-  font-family: Arial, sans-serif;
+}
+
+body {
+  font-family: 'MyCustomFont', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 .title {
@@ -318,18 +342,6 @@ body {
   position: relative;
 }
 
-.calendar-day.today::after {
-  content: '';
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  background-color: #2196f3;
-  border-radius: 50%;
-}
-
 .calendar-day:not(.empty):hover {
   background: rgba(255,255,255,0.35);
 }
@@ -495,7 +507,6 @@ body {
 
 .task-card.done {
   opacity: 0.6;
-  text-decoration: line-through;
 }
 
 .task-card b {
@@ -670,14 +681,61 @@ body {
   z-index: 1000;
 }
 
+/* Общие стили для модального окна */
 .modal-content {
   background: white;
   padding: 30px;
-  border-radius: 15px;
+  border-radius: 28px;
   width: 350px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
+  box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+}
+
+/* Поле ввода — сильно скруглённое */
+.modal-content input,
+.modal-content textarea {
+  border-radius: 40px;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus {
+  border-color: #ff7a18;
+  box-shadow: 0 0 0 2px rgba(255,122,24,0.2);
+}
+
+.modal-buttons button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-buttons .btn-cancel {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.modal-buttons .btn-cancel:hover {
+  background: #ccc;
+}
+
+.modal-buttons .btn-create {
+  background: #ff7a18;
+  color: white;
+}
+
+.modal-buttons .btn-create:hover {
+  background: #ff8c2f;
+  transform: translateY(-2px);
 }
 
 .modal-content textarea {
@@ -700,6 +758,48 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+/* Поля ввода и select в модальных окнах */
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+  border-radius: 40px;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  background: white;
+  font-family: inherit;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+  border-color: #ff7a18;
+  box-shadow: 0 0 0 2px rgba(255,122,24,0.2);
+}
+
+.modal-content select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+.modal-content select {
+  padding-right: 36px;
+}
+
+.modal-content select:focus {
+  border-color: #ff7a18;
+  box-shadow: 0 0 0 2px rgba(255,122,24,0.2);
+  outline: none;
 }
 
 #membersListModal .modal-content {
@@ -781,4 +881,109 @@ body {
 #taskPopup .modal-buttons button:hover {
   background: #ff8c2f;
   transform: translateY(-2px);
+}
+
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 40px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: 0.2s;
+  position: relative;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 14px;
+  padding-right: 40px;
+}
+
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 40px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: 0.2s;
+  position: relative;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 14px;
+  padding-right: 40px;
+}
+
+.custom-select-trigger:hover {
+  border-color: #ff7a18;
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+}
+
+.custom-select-dropdown.show {
+  display: block;
+}
+
+.custom-option {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: 0.1s;
+  color: #333;
+  font-size: 14px;
+}
+
+.custom-option:hover {
+  background: #f5f5f5;
+}
+
+.custom-option.selected {
+  background: transparent;
+  color: #ff7a18;
+  font-weight: bold;
+}
+
+.card input {
+  border-radius: 40px !important;
+  background: white !important;
+  color: #333 !important;
+  border: 1px solid #ddd !important;
+  padding: 12px 16px !important;
+  width: 100%;
+  box-sizing: border-box;
+  transition: 0.2s;
+}
+
+.card input:focus {
+  border-color: #ff7a18 !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,122,24,0.2) !important;
+}
+
+.card input::placeholder {
+  color: #aaa !important;
 }
