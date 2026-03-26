@@ -31,6 +31,11 @@
 | **База данных**    | PostgreSQL                                                         |
 
 
+## База данных
+
+![database](Diagrams/database.png)
+
+
 ## Роли и права доступа
 
 ![roles and permissions](Diagrams/roles%20and%20permissions.png)
