@@ -1,0 +1,140 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" version="29.6.6">
+  <diagram name="Страница-1" id="7jo2dAn90t0jo_4i5DyL">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="URuiViy1_e9l2MBwcvnD-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#9D5AD0;fillColor=#E7CAFF;strokeWidth=2;" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;User (team leader)&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="20" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-7" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#9D5AD0;strokeWidth=2;" target="URuiViy1_e9l2MBwcvnD-1" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="80" y="650" as="sourcePoint" />
+            <mxPoint x="600" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#9D5AD0;fillColor=#E7CAFF;strokeWidth=2;" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;API Gateway&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="360" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-9" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#9D5AD0;strokeWidth=2;" target="URuiViy1_e9l2MBwcvnD-8" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="420" y="650" as="sourcePoint" />
+            <mxPoint x="940" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#9D5AD0;fillColor=#E7CAFF;strokeWidth=2;" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Permission&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Service&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="820" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-13" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#9D5AD0;strokeWidth=2;" target="URuiViy1_e9l2MBwcvnD-12" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="880" y="650" as="sourcePoint" />
+            <mxPoint x="1410" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#9D5AD0;fillColor=#E7CAFF;strokeWidth=2;" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;TaskService&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="570" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-15" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#9D5AD0;strokeWidth=2;" target="URuiViy1_e9l2MBwcvnD-14" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="630" y="650" as="sourcePoint" />
+            <mxPoint x="1150" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#9D5AD0;fillColor=#E7CAFF;strokeWidth=2;" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Database&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="1060" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-17" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#9D5AD0;strokeWidth=2;" target="URuiViy1_e9l2MBwcvnD-16" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1120" y="650" as="sourcePoint" />
+            <mxPoint x="1640" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-18" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;POST /tasks {title, description, deadline, user_id, team_id}&lt;/font&gt;&lt;br&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="80" y="180" as="sourcePoint" />
+            <mxPoint x="420" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="URuiViy1_e9l2MBwcvnD-21" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;is_team_lead(current_user_id, team_id)&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="630" y="240" as="sourcePoint" />
+            <mxPoint x="880" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;SELECT lead_id FROM teams&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="880" y="270" as="sourcePoint" />
+            <mxPoint x="1120" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;lead_id&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" x="0.0023" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="1120" y="300" as="sourcePoint" />
+            <mxPoint x="880" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;is_team_lead(current_user_id) = true&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="880" y="330" as="sourcePoint" />
+            <mxPoint x="630" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;is_member(user_id, team_id)&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="630" y="370" as="sourcePoint" />
+            <mxPoint x="880" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;SELECT 1 FROM team_members&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;WHERE user_id AND team_id&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="880" y="400" as="sourcePoint" />
+            <mxPoint x="1120" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-6" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;true&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1120" y="430" as="sourcePoint" />
+            <mxPoint x="880" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;is_member(user_id, team_id) = true&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="880" y="460" as="sourcePoint" />
+            <mxPoint x="630" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;creat_task(task, current_user_id)&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="420" y="210" as="sourcePoint" />
+            <mxPoint x="630" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;INSERT INTO tasks (task)&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="630" y="500" as="sourcePoint" />
+            <mxPoint x="1120" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-11" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;task_id&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1120" y="540" as="sourcePoint" />
+            <mxPoint x="630" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-12" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;new_task&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="630" y="570" as="sourcePoint" />
+            <mxPoint x="420" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rPGTU1ZsamezkIGr0cnZ-13" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;created&lt;/font&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="600" as="sourcePoint" />
+            <mxPoint x="80" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
