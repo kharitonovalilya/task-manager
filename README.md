@@ -60,7 +60,7 @@
 ## Инструкция к запуску 
 
 1. Откройте Docker Desktop
-2. Запустите файл ```docker-compose.yaml``` командой ```docker-compose up --build```
+2. Запустите файл ```docker-compose.yaml``` командой ```docker-compose up --build```, находясь в директории с этим файлом
 3. Сервесы доступны по адресам: 
  - ```localhost/register.html``` - регистрация
  - ```localhost:5432``` - PostreSQL база данных
