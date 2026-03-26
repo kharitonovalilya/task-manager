@@ -25,11 +25,11 @@
 
 <div class="action-buttons">
   <button id="createTaskBtn" class="create-btn" onclick="openModal()">
-    + Создать задачу
+    Создать задачу
   </button>
   
   <button id="addMemberBtn" class="create-btn" style="background-color: #ff7a18; display: none;" onclick="openMemberModal()">
-    + Пригласить
+    Пригласить
   </button>
   
   <button id="viewMembersBtn" class="create-btn" style="background-color: #ff7a18;" onclick="openMembersListModal()">
@@ -77,9 +77,8 @@
     <textarea id="editTaskDescription" rows="3" placeholder="Описание"></textarea>
     <input id="editTaskDeadline" type="date">
     
-    <select id="editTaskUser">
-      <option value="">Выберите исполнителя</option>
-    </select>
+    <!-- ЗАМЕНИЛИ обычный select на контейнер кастомного селекта -->
+    <div id="editTaskUserContainer" class="custom-select-wrapper"></div>
 
     <div class="modal-buttons">
       <button onclick="saveTaskEdit()">Сохранить</button>
@@ -95,9 +94,7 @@
     <textarea id="taskDescription" placeholder="Описание задачи" rows="3"></textarea>
     <input id="taskDeadline" type="date">
     
-    <select id="taskUser">
-      <option value="">Выберите исполнителя</option>
-    </select>
+    <div id="taskUserContainer" class="custom-select-wrapper"></div>
 
     <div class="modal-buttons">
       <button onclick="createTask()">Создать</button>

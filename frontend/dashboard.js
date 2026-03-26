@@ -4,6 +4,7 @@ let teams = [];
 let tasks = [];
 let currentUser = null;
 let currentDate = new Date();
+let teamSelect = null; // кастомный селект для выбора команды
 
 const monthNames = [
   "Январь","Февраль","Март","Апрель","Май","Июнь",
@@ -19,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await fetchMe();
   await fetchTeams();
-  populateTeamSelect();
+  initTeamSelect();            // создаём кастомный селект после загрузки команд
   await fetchTasksForTeam();
 });
 
@@ -88,8 +89,8 @@ async function deleteTeam(teamId) {
 
     if (res.ok) {
       teams = teams.filter(t => t.id !== teamId);
-      renderTeams();         
-      populateTeamSelect();   
+      renderTeams();
+      updateTeamSelect();     // обновляем селект
     } else {
       const err = await res.json();
       alert("Ошибка удаления: " + (err.detail || "Недостаточно прав"));
@@ -99,28 +100,37 @@ async function deleteTeam(teamId) {
   }
 }
 
-function populateTeamSelect() {
-  const select = document.getElementById("teamSelect");
-  if (!select) return;
-  select.innerHTML = '<option value="">Все команды</option>';
-  teams.forEach(team => {
-    const option = document.createElement("option");
-    option.value = team.id;
-    option.textContent = team.name;
-    select.appendChild(option);
-  });
-  select.onchange = function() {
-    const teamId = this.value;
-    fetchTasksForTeam(teamId ? parseInt(teamId) : null);
-  };
+// ================= КАСТОМНЫЙ СЕЛЕКТ ДЛЯ ДАШБОРДА =================
+function initTeamSelect() {
+  const container = document.getElementById("teamSelectContainer");
+  if (!container) return;
+
+  // формируем опции: "Все команды" + список команд
+  const options = [
+    { value: "", label: "Все команды" },
+    ...teams.map(t => ({ value: t.id, label: t.name }))
+  ];
+
+  teamSelect = createCustomSelect(
+    "teamSelectContainer",
+    options,
+    (value) => {
+      fetchTasksForTeam(value ? parseInt(value) : null);
+    }
+  );
 }
 
-window.applyTeamFilter = function() {
-  const select = document.getElementById("teamSelect");
-  const teamId = select.value;
-  fetchTasksForTeam(teamId ? parseInt(teamId) : null);
-};
+function updateTeamSelect() {
+  if (teamSelect) {
+    const options = [
+      { value: "", label: "Все команды" },
+      ...teams.map(t => ({ value: t.id, label: t.name }))
+    ];
+    teamSelect.updateOptions(options);
+  }
+}
 
+// ================= СОЗДАНИЕ КОМАНДЫ =================
 window.createTeam = async function () {
   const token = localStorage.getItem("token");
   const nameInput = document.getElementById("teamNameInput");
@@ -144,7 +154,7 @@ window.createTeam = async function () {
     const newTeam = await res.json();
     teams.push(newTeam);
     renderTeams();
-    populateTeamSelect();
+    updateTeamSelect();
 
     nameInput.value = "";
     closeTeamModal();
@@ -153,6 +163,7 @@ window.createTeam = async function () {
   }
 };
 
+// ================= КАЛЕНДАРЬ =================
 function renderCalendar() {
   const grid = document.getElementById("calendarGrid");
   const title = document.getElementById("monthTitle");
@@ -235,15 +246,15 @@ function renderTeams() {
     nameSpan.style.cursor = "pointer";
     nameSpan.onclick = () => window.location.href = `team-tasks.html?teamId=${team.id}`;
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "X";  
-    deleteBtn.className = "delete-team-btn";
-    deleteBtn.title = "Удалить команду";
-    deleteBtn.onclick = (e) => {
-    e.stopPropagation();
-    deleteTeam(team.id);
-};
     if (currentUser && team.lead_id === currentUser.id) {
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "X";
+      deleteBtn.className = "delete-team-btn";
+      deleteBtn.title = "Удалить команду";
+      deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteTeam(team.id);
+      };
       card.appendChild(nameSpan);
       card.appendChild(deleteBtn);
     } else {
@@ -276,8 +287,91 @@ function showTaskPopup(task) {
   popup.style.display = "flex";
 }
 
+// ================= ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ =================
 window.prevMonth = () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); };
 window.nextMonth = () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); };
 window.openCreateTeam = () => { document.getElementById("teamModal").style.display = "flex"; };
 window.closeTeamModal = () => { document.getElementById("teamModal").style.display = "none"; };
 window.closeTaskPopup = () => { document.getElementById("taskPopup").style.display = "none"; };
+
+// ================= УНИВЕРСАЛЬНЫЙ КАСТОМНЫЙ СЕЛЕКТ =================
+function createCustomSelect(containerId, options, onSelect) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const trigger = document.createElement('div');
+  trigger.className = 'custom-select-trigger';
+  container.appendChild(trigger);
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'custom-select-dropdown';
+  container.appendChild(dropdown);
+
+  let currentOptions = [...options];
+
+  function renderOptions() {
+    dropdown.innerHTML = '';
+    currentOptions.forEach(opt => {
+      const optionDiv = document.createElement('div');
+      optionDiv.className = 'custom-option';
+      optionDiv.innerText = opt.label;
+      optionDiv.dataset.value = opt.value;
+      optionDiv.addEventListener('click', () => {
+        trigger.innerText = opt.label;
+        dropdown.classList.remove('show');
+        if (onSelect) onSelect(opt.value);
+        dropdown.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+        optionDiv.classList.add('selected');
+      });
+      dropdown.appendChild(optionDiv);
+    });
+  }
+
+  function updateTriggerText() {
+    const selected = dropdown.querySelector('.custom-option.selected');
+    if (selected) {
+      trigger.innerText = selected.innerText;
+    } else if (currentOptions.length) {
+      trigger.innerText = currentOptions[0].label;
+    } else {
+      trigger.innerText = 'Нет вариантов';
+    }
+  }
+
+  renderOptions();
+  updateTriggerText();
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('show');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  return {
+    updateOptions(newOptions) {
+      currentOptions = [...newOptions];
+      renderOptions();
+      updateTriggerText();
+      if (currentOptions.length && onSelect) {
+        onSelect(currentOptions[0].value);
+      }
+    },
+    setValue(value) {
+      const option = currentOptions.find(opt => opt.value == value);
+      if (option) {
+        trigger.innerText = option.label;
+        dropdown.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+        const target = Array.from(dropdown.children).find(el => el.dataset.value == value);
+        if (target) target.classList.add('selected');
+        if (onSelect) onSelect(value);
+      }
+    }
+  };
+}
